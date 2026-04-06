@@ -4,30 +4,44 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section class="home-hero">
+<section class="home-hero mt-4">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row gy-4 align-items-stretch">
+            @* Cột trái: Lời chào và nút bấm *@
             <div class="col-md-7">
-                <div class="hero-card">
-                    <h1 class="display-5">Chào mừng đến với     <br /> Dopamine EnT</h1>
-                    <p class="lead text-muted">Mua sắm nhanh chóng — sản phẩm chất lượng — giao hàng tận nơi.</p>
+                <div class="hero-card h-100 d-flex flex-column justify-content-center p-4 p-lg-5 shadow-sm rounded-4 bg-white">
+                    <h1 class="display-5 fw-bold mb-3">Chào mừng đến với <br /><span class="text-primary">Dopamine EnT</span></h1>
+                    <p class="lead text-muted mb-4">Trải nghiệm mua sắm đỉnh cao — Sản phẩm chất lượng — Giao hàng thần tốc.</p>
 
-                    <div class="d-flex gap-2 mt-3">
-                        <a href="~/Product" class="btn btn-primary btn-lg">Mua ngay</a>
+                    <div class="d-flex gap-3 mt-2">
+                        <a href="~/Product" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Mua ngay</a>
+                        <a href="#featured" class="btn btn-outline-secondary btn-lg px-4 rounded-pill">Khám phá</a>
                     </div>
 
-                    <div class="mt-4 text-muted">
-                        <small><i class="bi bi-truck me-1"></i> Miễn phí vận chuyển cho đơn hàng trên 1,000,000 VND</small>
+                    <div class="mt-5 text-muted border-top pt-3">
+                        <small class="d-flex align-items-center">
+                            <i class="bi bi-patch-check-fill text-primary me-2 fs-5"></i>
+                            Miễn phí vận chuyển cho đơn hàng trên 1,000,000 VND
+                        </small>
                     </div>
                 </div>
             </div>
 
+            @* Cột phải: BANNER KHUYẾN MÃI (Thay thế phần Khách hàng cũ) *@
             <div class="col-md-5">
-                <div class="card hero-card">
-                    <div class="card-body text-center">
-                        <h6>Khách hàng</h6>
-                        <p class="mb-2">Quản lý đơn hàng, theo dõi giao hàng và truy cập lịch sử mua sắm của bạn.</p>
-                        <a href="~/Profile" class="btn btn-outline-primary">Xem hồ sơ</a>
+                <div class="position-relative h-100 overflow-hidden rounded-4 shadow-lg group">
+                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
+                         class="w-100 h-100 object-fit-cover transition-transform duration-500 scale-105"
+                         style="min-height: 350px;" alt="Banner">
+
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end p-4"
+                         style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%);">
+                        <div class="mb-2">
+                            <span class="badge bg-danger px-3 py-2 rounded-pill fw-bold">GIẢM ĐẾN 40%</span>
+                        </div>
+                        <h3 class="text-white fw-bold mb-2">Tuần Lễ Gaming</h3>
+                        <p class="text-white-50 small mb-3">Sở hữu ngay các dòng máy chơi game và linh kiện cao cấp với mức giá ưu đãi nhất năm.</p>
+                        <a href="~/Product" class="btn btn-light btn-sm fw-bold rounded-pill px-4 align-self-start">Xem chi tiết</a>
                     </div>
                 </div>
             </div>
@@ -35,18 +49,18 @@
     </div>
 </section>
 
-<div class="container my-5">
-    <h4 class="mb-3">Danh mục nổi bật</h4>
-    <div class="row row-cols-1 row-cols-md-3 g-3">
+<div class="container my-5" id="featured">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <h4 class="fw-bold mb-0 text-dark"><i class="bi bi-fire text-danger me-2"></i>Danh mục nổi bật</h4>
+        <a href="~/Product" class="text-primary text-decoration-none small fw-bold">Xem tất cả <i class="bi bi-chevron-right"></i></a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         @if (Model == null || !Model.Any())
         {
-            <div class="col">
-                <div class="card h-100">
-                    <img src="/images/no-image.png" class="card-img-top" alt="sample" />
-                    <div class="card-body">
-                        <h5 class="card-title">Không có sản phẩm nổi bật</h5>
-                    </div>
-                </div>
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-box-seam display-1 text-light"></i>
+                <h5 class="text-muted mt-3">Hiện chưa có sản phẩm nổi bật</h5>
             </div>
         }
         else
@@ -55,12 +69,18 @@
             {
                 var photo = string.IsNullOrEmpty(p.Photo) ? "/images/no-image.png" : (p.Photo.StartsWith("http") ? p.Photo : Url.Content($"~/images/products/{p.Photo}"));
                 <div class="col">
-                    <div class="card h-100">
-                        <img src="@photo" class="card-img-top" alt="@p.ProductName" style="object-fit:cover; height:200px;" />
-                        <div class="card-body">
-                            <h5 class="card-title">@p.ProductName</h5>
-                            <p class="card-text text-muted">Giá: @p.Price.ToString("N0") VND</p>
-                            <a asp-controller="Product" asp-action="Details" asp-route-id="@p.ProductID" class="btn btn-sm btn-primary">Xem</a>
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden product-card">
+                        <div class="position-relative">
+                            <img src="@photo" class="card-img-top" alt="@p.ProductName" style="object-fit:cover; height:220px;" />
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold text-truncate" title="@p.ProductName">@p.ProductName</h5>
+                            <p class="card-text text-primary fw-bold fs-5 mb-3">@p.Price.ToString("N0") <small>VND</small></p>
+                            <div class="d-grid">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@p.ProductID" class="btn btn-outline-primary rounded-pill fw-bold">
+                                    <i class="bi bi-eye me-2"></i> Chi tiết
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -68,3 +88,33 @@
         }
     </div>
 </div>
+
+<style>
+    /* Hiệu ứng zoom nhẹ cho banner */
+    .object-fit-cover {
+        object-fit: cover;
+    }
+
+    .transition-transform {
+        transition: transform 0.5s ease;
+    }
+
+    .scale-105:hover {
+        transform: scale(1.1);
+    }
+
+    /* Hiệu ứng cho Product Card */
+    .product-card {
+        transition: all 0.3s ease;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+    /* Căn chỉnh hero section */
+    .hero-card {
+        border: none !important;
+    }
+</style>

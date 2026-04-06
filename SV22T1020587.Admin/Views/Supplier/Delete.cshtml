@@ -1,6 +1,8 @@
 ﻿@model SV22T1020587.Models.Partner.Supplier
 @{
+    ViewBag.Title = "Xóa nhà cung cấp";
 }
+
 @section PageToolBar {
     @if (ViewBag.IsUsed == false)
     {
@@ -15,9 +17,9 @@
 
 <div class="row justify-content-center">
     <div class="col-12">
-        <div class="card card-danger card-outline">
+        <div class="card card-danger card-outline shadow-sm">
             <div class="card-header">
-                <h5 class="card-title mb-0 text-danger">
+                <h5 class="card-title mb-0 text-danger fw-bold">
                     <i class="bi bi-exclamation-triangle me-2"></i> Xác nhận xóa nhà cung cấp
                 </h5>
             </div>
@@ -25,43 +27,65 @@
             <div class="card-body">
                 @if (ViewBag.IsUsed == true)
                 {
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger mb-0">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <strong>Không thể xóa!</strong> Nhà cung cấp này đang có dữ liệu liên quan trong hệ thống.
+                        <strong>Không thể xóa!</strong> Nhà cung cấp này hiện đang có dữ liệu liên quan (đơn hàng hoặc sản phẩm) trong hệ thống nên không được phép xóa.
                     </div>
                 }
                 else
                 {
                     <form id="formDelete" action="~/Supplier/Delete/@Model.SupplierID" method="post">
+                        @* Đảm bảo truyền ID để xử lý phía Controller *@
                         <input type="hidden" name="SupplierID" value="@Model.SupplierID" />
 
                         <div class="alert alert-warning d-flex align-items-center">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Bạn có chắc chắn muốn xóa nhà cung cấp sau không?
+                            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                            <div>
+                                Bạn có chắc chắn muốn xóa nhà cung cấp này không? Hành động này không thể hoàn tác.
+                            </div>
                         </div>
 
-                        <dl class="row mb-0 mt-3">
-                            <dt class="col-sm-4">Tên nhà cung cấp</dt>
-                            <dd class="col-sm-8">@Model.SupplierName</dd>
+                        <div class="mt-4 px-2">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4 text-muted">Tên nhà cung cấp:</dt>
+                                <dd class="col-sm-8 fw-bold">@Model.SupplierName</dd>
 
-                            <dt class="col-sm-4">Tên giao dịch</dt>
-                            <dd class="col-sm-8">@Model.ContactName</dd>
+                                <dt class="col-sm-4 text-muted">Tên giao dịch:</dt>
+                                <dd class="col-sm-8">@Model.ContactName</dd>
 
-                            <dt class="col-sm-4">Điện thoại</dt>
-                            <dd class="col-sm-8">@Model.Phone</dd>
+                                <dt class="col-sm-4 text-muted">Điện thoại:</dt>
+                                <dd class="col-sm-8 text-primary">@Model.Phone</dd>
 
-                            <dt class="col-sm-4">Email</dt>
-                            <dd class="col-sm-8">@Model.Email</dd>
+                                <dt class="col-sm-4 text-muted">Email:</dt>
+                                <dd class="col-sm-8">@Model.Email</dd>
 
-                            <dt class="col-sm-4">Địa chỉ</dt>
-                            <dd class="col-sm-8">@Model.Address</dd>
+                                <dt class="col-sm-4 text-muted">Địa chỉ:</dt>
+                                <dd class="col-sm-8">@Model.Address</dd>
 
-                            <dt class="col-sm-4">Tỉnh / Thành</dt>
-                            <dd class="col-sm-8">@Model.Province</dd>
-                        </dl>
+                                <dt class="col-sm-4 text-muted">Tỉnh / Thành:</dt>
+                                <dd class="col-sm-8">@Model.Province</dd>
+                            </dl>
+                        </div>
                     </form>
                 }
             </div>
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Bắt sự kiện submit của form xóa
+            $("#formDelete").submit(function (e) {
+                // Hiển thị hộp thoại xác nhận của trình duyệt
+                var confirmDelete = confirm("Hành động này sẽ xóa vĩnh viễn nhà cung cấp. Bạn có chắc chắn muốn tiếp tục?");
+
+                if (!confirmDelete) {
+                    // Nếu nhấn 'Cancel', ngăn chặn việc gửi form lên server
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

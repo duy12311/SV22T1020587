@@ -7,11 +7,11 @@ using SV22T1020587.Models.HR;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SV22T1020587.Admin.Controllers
 {
-    // CẬP NHẬT: Cho phép cả Staff và Admin quản lý nhân viên
     [Authorize(Roles = "Staff, Admin")]
     public class EmployeeController : Controller
     {
@@ -21,14 +21,12 @@ namespace SV22T1020587.Admin.Controllers
         public IActionResult Index()
         {
             ViewBag.Title = "Quản lý Nhân viên";
-
             var input = new PaginationSearchInput()
             {
                 Page = HttpContext.Session.GetInt32($"{SEARCH_CONDITION}_Page") ?? 1,
                 PageSize = PAGE_SIZE,
                 SearchValue = HttpContext.Session.GetString($"{SEARCH_CONDITION}_Value") ?? ""
             };
-
             return View(input);
         }
 
@@ -37,7 +35,6 @@ namespace SV22T1020587.Admin.Controllers
         {
             HttpContext.Session.SetInt32($"{SEARCH_CONDITION}_Page", input.Page);
             HttpContext.Session.SetString($"{SEARCH_CONDITION}_Value", input.SearchValue ?? "");
-
             var data = await HRDataService.ListEmployeesAsync(input);
             return PartialView(data);
         }
@@ -73,7 +70,7 @@ namespace SV22T1020587.Admin.Controllers
                 if (DateTime.TryParseExact(birthDateInput, "d/M/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
                     data.BirthDate = parsedDate;
                 else
-                    ModelState.AddModelError(nameof(data.BirthDate), "Ngày sinh không đúng định dạng d/m/yyyy");
+                    ModelState.AddModelError(nameof(data.BirthDate), "Ngày sinh không đúng định dạng d/M/yyyy");
             }
 
             // 2. Kiểm tra dữ liệu bắt buộc
@@ -103,18 +100,22 @@ namespace SV22T1020587.Admin.Controllers
                 data.Photo = fileName;
             }
 
-            if (string.IsNullOrEmpty(data.Photo))
-                data.Photo = "nophoto.png";
-
-            // 4. Lưu CSDL
+            // 4. Lưu CSDL và thông báo
             if (data.EmployeeID == 0)
-                await HRDataService.AddEmployeeAsync(data);
+            {
+                int newId = await HRDataService.AddEmployeeAsync(data);
+                TempData["Message"] = "Đã bổ sung nhân viên mới thành công!";
+                return RedirectToAction("Edit", new { id = newId });
+            }
             else
+            {
                 await HRDataService.UpdateEmployeeAsync(data);
-
-            return RedirectToAction("Index");
+                TempData["Message"] = "Cập nhật thông tin nhân viên thành công!";
+                return RedirectToAction("Edit", new { id = data.EmployeeID });
+            }
         }
 
+        // --- XỬ LÝ XÓA NHÂN VIÊN ---
         public async Task<IActionResult> Delete(int id = 0)
         {
             ViewBag.Title = "Xóa Nhân viên";
@@ -133,9 +134,11 @@ namespace SV22T1020587.Admin.Controllers
                 TempData["Error"] = "Không thể xóa nhân viên này vì có dữ liệu liên quan.";
                 return RedirectToAction("Delete", new { id = id });
             }
+            TempData["Message"] = "Đã xóa nhân viên thành công.";
             return RedirectToAction("Index");
         }
 
+        // --- XỬ LÝ ĐỔI MẬT KHẨU ---
         [HttpGet]
         public async Task<IActionResult> ChangePassword(int id)
         {
@@ -163,12 +166,12 @@ namespace SV22T1020587.Admin.Controllers
                 return View("ChangePassword", employee);
             }
 
-            // Sử dụng Email làm username để đổi mật khẩu
             await SecurityDataService.ChangeEmployeePasswordAsync(employee.Email, newPassword);
-            TempData["Message"] = $"Đã đổi mật khẩu cho nhân viên {employee.FullName}";
-            return RedirectToAction("Index");
+            TempData["Message"] = "Đã thay đổi mật khẩu thành công!";
+            return RedirectToAction("ChangePassword", new { id = employeeID });
         }
 
+        // --- XỬ LÝ PHÂN QUYỀN ---
         [HttpGet]
         public async Task<IActionResult> ChangeRole(int id = 0)
         {
@@ -182,15 +185,15 @@ namespace SV22T1020587.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveRole(int employeeID, string[] roles)
         {
-            // Chuyển mảng Roles thành chuỗi cách nhau bởi dấu phẩy
             string roleNames = (roles != null && roles.Length > 0) ? string.Join(",", roles) : "";
-
             var employee = await HRDataService.GetEmployeeAsync(employeeID);
+
             if (employee != null)
             {
                 employee.RoleNames = roleNames;
                 await HRDataService.UpdateEmployeeAsync(employee);
-                TempData["Message"] = $"Cập nhật quyền cho nhân viên {employee.FullName} thành công.";
+                TempData["Message"] = $"Đã cập nhật quyền cho nhân viên {employee.FullName} thành công!";
+                return RedirectToAction("ChangeRole", new { id = employeeID });
             }
             return RedirectToAction("Index");
         }

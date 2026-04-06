@@ -1,12 +1,13 @@
 ﻿@model SV22T1020587.Models.Partner.Shipper
 @{
+    ViewBag.Title = "Xóa người giao hàng";
 }
 
 @section PageToolBar {
     @if (ViewBag.IsUsed == false)
     {
-        <button type="submit" form="formDelete" class="btn btn-danger">
-            <i class="bi bi-trash me-1"></i> Xóa
+        <button type="submit" form="formDelete" class="btn btn-danger" onclick="return confirm('. Bạn có thực sự muốn xóa người giao hàng này?')">
+            <i class="bi bi-trash me-1"></i> Xác nhận xóa
         </button>
     }
     <a href="~/Shipper" class="btn btn-secondary ms-1">
@@ -16,9 +17,9 @@
 
 <div class="row justify-content-center">
     <div class="col-12">
-        <div class="card card-danger card-outline">
+        <div class="card card-danger card-outline shadow-sm">
             <div class="card-header">
-                <h5 class="card-title mb-0 text-danger">
+                <h5 class="card-title mb-0 text-danger fw-bold">
                     <i class="bi bi-exclamation-triangle me-2"></i> Xác nhận xóa người giao hàng
                 </h5>
             </div>
@@ -26,9 +27,9 @@
             <div class="card-body">
                 @if (ViewBag.IsUsed == true)
                 {
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger mb-0">
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <strong>Không thể xóa!</strong> Người giao hàng này đang có dữ liệu liên quan trong hệ thống.
+                        <strong>Không thể xóa!</strong> Người giao hàng này hiện đang có dữ liệu liên quan (vận chuyển đơn hàng) nên không thể xóa khỏi hệ thống.
                     </div>
                 }
                 else
@@ -37,16 +38,16 @@
                         <input type="hidden" name="ShipperID" value="@Model.ShipperID" />
 
                         <div class="alert alert-warning d-flex align-items-center">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Bạn có chắc chắn muốn xóa người giao hàng sau không?
+                            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                            <div>Bạn có chắc chắn muốn xóa người giao hàng với thông tin sau không?</div>
                         </div>
 
-                        <dl class="row mb-0 mt-3">
-                            <dt class="col-sm-4">Tên người giao hàng</dt>
-                            <dd class="col-sm-8">@Model.ShipperName</dd>
+                        <dl class="row mb-0 mt-3 px-2">
+                            <dt class="col-sm-4 text-muted">Tên người giao hàng:</dt>
+                            <dd class="col-sm-8 fw-bold text-primary">@Model.ShipperName</dd>
 
-                            <dt class="col-sm-4">Điện thoại</dt>
-                            <dd class="col-sm-8">@Model.Phone</dd>
+                            <dt class="col-sm-4 text-muted">Số điện thoại:</dt>
+                            <dd class="col-sm-8 text-dark">@Model.Phone</dd>
                         </dl>
                     </form>
                 }

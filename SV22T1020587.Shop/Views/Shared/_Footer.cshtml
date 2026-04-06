@@ -1,14 +1,73 @@
-﻿@{
-}
-<footer class="bg-light border-top fixed-bottom">
-    <div class="container py-3">
-        <div class="row">
-            <div class="col-md-8">
-                <p class="mb-0">© @DateTime.Now.Year Dopamine EnT. All rights reserved.</p>
+﻿<style>
+    .footer-link {
+        transition: 0.2s;
+        font-size: 0.9rem;
+        color: #64748b !important;
+        text-decoration: none;
+    }
+
+        .footer-link:hover {
+            color: var(--primary-color) !important;
+            padding-left: 5px;
+        }
+
+    .social-circle {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        border-radius: 50%;
+        color: #475569;
+        transition: 0.3s;
+    }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+</style>
+
+<footer class="bg-white pt-5 pb-4 mt-auto border-top">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-4 col-md-12">
+                <div class="text-primary fs-3 fw-bold mb-3"><i class="bi bi-lightning-charge-fill"></i> Dopamine EnT</div>
+                <p class="text-muted small pe-lg-5">Hệ thống cung cấp thiết bị công nghệ hàng đầu. Uy tín - Tận tâm - Thần tốc.</p>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="#" class="social-circle"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-circle"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" class="social-circle"><i class="bi bi-youtube"></i></a>
+                </div>
             </div>
-            <div class="col-md-4 text-md-end">
-                <small>Contact: 22T1020587@husc.edu.vn</small>
+            <div class="col-6 col-lg-2 ms-auto">
+                <h6 class="fw-bold mb-3">Sản phẩm</h6>
+                <ul class="list-unstyled">
+                    <li><a href="~/Product" class="footer-link">Tất cả hàng</a></li>
+                    <li><a href="#" class="footer-link">Giảm giá</a></li>
+                </ul>
             </div>
+            <div class="col-6 col-lg-2">
+                <h6 class="fw-bold mb-3">Hỗ trợ</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="footer-link">Bảo hành</a></li>
+                    <li><a href="#" class="footer-link">Giao nhận</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-12">
+                <h6 class="fw-bold mb-3">Đăng ký bản tin</h6>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm bg-light border-0" placeholder="Email...">
+                    <button class="btn btn-primary btn-sm">Gửi</button>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4 opacity-10">
+        <div class="d-flex justify-content-between align-items-center small text-muted">
+            <span>&copy; 2026 Dopamine EnT Store</span>
+            <img src="https://img.vietqr.io/image/pay-logo.png" height="20" style="filter: grayscale(1); opacity: 0.5;">
         </div>
     </div>
 </footer>

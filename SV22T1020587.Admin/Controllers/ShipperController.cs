@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization; // 1. Bắt buộc thêm thư viện này
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020587.BusinessLayers;
@@ -9,30 +9,25 @@ using System.Threading.Tasks;
 
 namespace SV22T1020587.Admin.Controllers
 {
-    // 2. CHẶN TRUY CẬP: Chỉ cho phép "Staff" hoặc "Admin" quản lý Người giao hàng
     [Authorize(Roles = "Staff, Admin")]
     public class ShipperController : Controller
     {
         private const int PAGE_SIZE = 10;
-        private const string SEARCH_CONDITION = "ShipperSearchCondition"; // Biến lưu Session
+        private const string SEARCH_CONDITION = "ShipperSearchCondition";
 
-        // Hàm Index chỉ làm nhiệm vụ nạp giao diện và khôi phục Session
         public IActionResult Index()
         {
             ViewBag.Title = "Quản lý Người giao hàng";
 
-            // Khôi phục điều kiện tìm kiếm từ session (Bookmark)
             ViewBag.Page = HttpContext.Session.GetInt32($"{SEARCH_CONDITION}_Page") ?? 1;
             ViewBag.SearchValue = HttpContext.Session.GetString($"{SEARCH_CONDITION}_Value") ?? "";
 
             return View();
         }
 
-        // Hàm Search làm nhiệm vụ tìm kiếm AJAX và trả về PartialView
         [HttpPost]
         public async Task<IActionResult> Search(PaginationSearchInput condition)
         {
-            // Lưu lại điều kiện vào session
             HttpContext.Session.SetInt32($"{SEARCH_CONDITION}_Page", condition.Page);
             HttpContext.Session.SetString($"{SEARCH_CONDITION}_Value", condition.SearchValue ?? "");
 
@@ -58,8 +53,10 @@ namespace SV22T1020587.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Save(Shipper data)
         {
+            // Kiểm tra dữ liệu đầu vào
             if (string.IsNullOrWhiteSpace(data.ShipperName))
                 ModelState.AddModelError(nameof(data.ShipperName), "Tên người giao hàng không được để trống");
 
@@ -75,29 +72,44 @@ namespace SV22T1020587.Admin.Controllers
             try
             {
                 if (data.ShipperID == 0)
-                    await PartnerDataService.AddShipperAsync(data);
+                {
+                    int id = await PartnerDataService.AddShipperAsync(data);
+                    TempData["Message"] = "Đã thêm mới người giao hàng thành công!";
+                    return RedirectToAction("Edit", new { id = id });
+                }
                 else
+                {
                     await PartnerDataService.UpdateShipperAsync(data);
-
-                return RedirectToAction("Index");
+                    TempData["Message"] = "Đã cập nhật thông tin người giao hàng thành công!";
+                    return RedirectToAction("Edit", new { id = data.ShipperID });
+                }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("Error", ex.Message);
+                ModelState.AddModelError("Error", "Có lỗi xảy ra: " + ex.Message);
                 return View("Edit", data);
             }
         }
 
         public async Task<IActionResult> Delete(int id = 0)
         {
-            if (Request.Method == "POST")
-            {
-                await PartnerDataService.DeleteShipperAsync(id);
-                return RedirectToAction("Index");
-            }
-
             var model = await PartnerDataService.GetShipperAsync(id);
             if (model == null) return RedirectToAction("Index");
+
+            if (Request.Method == "POST")
+            {
+                bool result = await PartnerDataService.DeleteShipperAsync(id);
+                if (result)
+                {
+                    TempData["Message"] = "Đã xóa người giao hàng thành công!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = "Không thể xóa người giao hàng này vì đang có dữ liệu liên quan.";
+                    return RedirectToAction("Delete", new { id = id });
+                }
+            }
 
             ViewBag.IsUsed = await PartnerDataService.IsUsedShipperAsync(id);
             ViewBag.Title = "Xóa người giao hàng";

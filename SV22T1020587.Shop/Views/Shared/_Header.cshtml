@@ -1,114 +1,223 @@
 ﻿@using System.Security.Claims
 @{
     var userName = User?.Identity?.IsAuthenticated == true ? User.Identity.Name : null;
-    var cartCount = ViewBag.CartCount ?? 0;
     var claimEmail = User?.FindFirst(ClaimTypes.Email)?.Value ?? "";
-    var claimDisplayName = User?.FindFirst(ClaimTypes.Name)?.Value ?? userName ?? "";
+    var claimDisplayName = User?.FindFirst(ClaimTypes.Name)?.Value ?? userName ?? "Khách";
 }
 
-<header class="header-navbar fixed-top shadow-sm bg-white py-2">
-    <div class="container">
-        <div class="header-inner d-flex align-items-center justify-content-between">
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --primary-color: #0d6efd;
+    }
 
-            <a class="brand d-flex align-items-center text-decoration-none text-primary" href="~/">
-                <div class="brand-logo me-2 fs-3"><i class="bi bi-bag-check-fill"></i> SC</div>
-                <div class="brand-title fw-bold fs-4 text-dark mb-0 d-none d-sm-block">Dopamine EnT</div>
+    /* 1. Header Styles */
+    .header-navbar {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        background-color: var(--glass-bg) !important;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        z-index: 1040;
+    }
+
+    .header-search .form-control {
+        border-radius: 12px 0 0 12px !important;
+        border: 1px solid #e2e8f0;
+        background: #f1f5f9;
+    }
+
+    .header-search .btn {
+        border-radius: 0 12px 12px 0 !important;
+    }
+
+    /* 2. Account Pill Styles */
+    .account-pill {
+        background: #f1f5f9;
+        padding: 4px 12px 4px 6px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        transition: 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+
+        .account-pill:hover {
+            background: #e2e8f0;
+        }
+
+    /* 3. Badge Animation */
+    .badge-animated {
+        transition: all 0.3s ease;
+        display: none; /* Mặc định ẩn, JS sẽ hiện khi có hàng */
+    }
+
+    /* 4. Bottom Nav Styles */
+    .bottom-nav-item {
+        text-align: center;
+        text-decoration: none;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        flex-column: column;
+        align-items: center;
+    }
+
+        .bottom-nav-item.active {
+            color: var(--primary-color);
+        }
+</style>
+
+<header class="header-navbar fixed-top py-2">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+
+            <a class="d-flex align-items-center text-decoration-none me-4" href="~/">
+                <div class="text-primary fs-3 me-2"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="fw-bold fs-4 text-dark d-none d-lg-block" style="letter-spacing: -1px;">
+                    Dopamine<span class="text-primary">EnT</span>
+                </div>
             </a>
 
-            <form class="header-search input-group flex-fill mx-3 mx-lg-5" style="max-width: 600px;" method="get" action="~/Product/Index" role="search">
-                <input class="form-control shadow-none" name="q" type="search" placeholder="Tìm kiếm sản phẩm, thương hiệu..." aria-label="Search" />
-                <button class="btn btn-primary px-3 shadow-none" type="submit" title="Tìm kiếm">
-                    <i class="bi bi-search"></i>
-                </button>
+            <form class="header-search input-group d-none d-md-flex flex-fill mx-lg-5" style="max-width: 600px;" action="~/Product/Index" method="get">
+                <input class="form-control border-0 shadow-none" name="q" type="search" placeholder="Tìm kiếm sản phẩm giá tốt..." />
+                <button class="btn btn-primary px-3 shadow-none" type="submit"><i class="bi bi-search"></i></button>
             </form>
 
-            <div class="header-actions d-flex align-items-center gap-3 gap-md-4">
-
-                <a class="icon-btn d-none d-md-flex align-items-center text-dark text-decoration-none" href="~/Product" title="Danh mục" aria-label="Danh mục">
-                    <i class="bi bi-list fs-4"></i>
-                </a>
-
-                <a class="icon-btn position-relative d-flex align-items-center text-dark text-decoration-none" href="~/Cart" title="Giỏ hàng" aria-label="Giỏ hàng">
-                    <i class="bi bi-cart fs-4" aria-hidden="true"></i>
-                    <span class="visually-hidden">Giỏ hàng</span>
-                    <span id="cartCount" class="badge bg-danger rounded-pill position-absolute translate-middle" style="top: 2px; left: 90%; font-size: 0.7rem; padding: 0.3em 0.5em;">
-                        @cartCount
+            <div class="d-flex align-items-center gap-3">
+                <a class="icon-btn position-relative d-flex align-items-center text-dark text-decoration-none p-2" href="~/Cart" title="Giỏ hàng">
+                    <i class="bi bi-cart fs-4"></i>
+                    <span id="cartCount" class="cart-badge badge bg-danger rounded-pill position-absolute translate-middle badge-animated" style="top: 5px; left: 85%; font-size: 0.65rem;">
+                        0
                     </span>
                 </a>
 
                 @if (userName != null)
                 {
-                    <div class="dropdown d-none d-md-inline">
-                        <button type="button" id="accountDropdown" class="btn btn-link text-dark text-decoration-none dropdown-toggle d-flex align-items-center p-0" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
-                            <i class="bi bi-person-circle fs-4 text-secondary"></i>
-                            <span class="ms-2 d-none d-lg-inline fw-semibold" style="font-size: 0.95rem;">@claimDisplayName</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="accountDropdown">
-                            <li class="px-3 py-2 small text-muted">@claimEmail</li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li class="px-3">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0 p-0">
+                    <div class="dropdown">
+                        <div class="account-pill" data-bs-toggle="dropdown">
+                            <img src="https://ui-avatars.com/api/?name=@userName&background=0D6EFD&color=fff" class="rounded-circle me-2" width="28" height="28">
+                            <span class="small fw-bold d-none d-lg-inline">@claimDisplayName</span>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-2 rounded-4">
+                            <li class="px-3 py-2 small text-muted border-bottom mb-1">@claimEmail</li>
+                            <li><a class="dropdown-item rounded-3 py-2" href="~/Account/Profile"><i class="bi bi-person me-2"></i> Hồ sơ</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-outline-danger w-100 fw-medium">Đăng xuất</button>
+                                    <button type="submit" class="dropdown-item rounded-3 py-2 text-danger fw-bold border-0 bg-transparent w-100 text-start">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
-
-                    <a class="btn btn-light border-0 d-md-none p-2 rounded-circle" href="~/Account/Profile" title="Tài khoản">
-                        <i class="bi bi-person fs-5"></i>
-                    </a>
                 }
                 else
                 {
-                    <div class="d-none d-md-flex gap-2">
-                        <a class="btn btn-outline-primary fw-medium px-3" href="~/Account/Login">Đăng nhập</a>
-                        <a class="btn btn-primary fw-medium px-3" href="~/Account/Register">Đăng ký</a>
-                    </div>
-
-                    <a class="btn btn-light border-0 d-md-none p-2 rounded-circle" href="~/Account/Login">
-                        <i class="bi bi-person fs-5"></i>
-                    </a>
+                    <a class="btn btn-primary rounded-pill px-4 d-none d-md-block fw-bold" href="~/Account/Login">Đăng nhập</a>
+                    <a class="btn btn-light d-md-none p-2 rounded-circle" href="~/Account/Login"><i class="bi bi-person fs-4"></i></a>
                 }
             </div>
         </div>
     </div>
 </header>
 
-<a href="~/Cart" class="fab-cart d-md-none shadow" title="Giỏ hàng" aria-label="Giỏ hàng" style="position: fixed; bottom: 80px; right: 20px; z-index: 1030; background: #fff; padding: 12px; border-radius: 50%;">
-    <div class="position-relative d-flex align-items-center justify-content-center">
+<a href="~/Cart" class="d-md-none shadow-lg d-flex align-items-center justify-content-center text-decoration-none"
+   style="position: fixed; bottom: 85px; right: 20px; z-index: 1030; background: #fff; width: 55px; height: 55px; border-radius: 50%; border: 1px solid #eee;">
+    <div class="position-relative">
         <i class="bi bi-cart fs-3 text-primary"></i>
-        <span class="cart-badge badge bg-danger rounded-pill position-absolute translate-middle" id="cartCountMobile" style="top: 0; left: 100%; font-size: 0.7rem;">
-            @cartCount
+        <span class="cart-badge badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle badge-animated" style="font-size: 0.65rem; border: 2px solid white;">
+            0
         </span>
     </div>
 </a>
 
-<nav class="bottom-nav d-md-none shadow-lg bg-white position-fixed bottom-0 w-100 d-flex justify-content-around py-2" aria-label="Bottom navigation" style="z-index: 1020; border-top: 1px solid #eee;">
-    <a href="~/" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
-        <i class="bi bi-house-door fs-5 mb-1"></i>
-        <span style="font-size: 0.75rem; font-weight: 500;">Trang chủ</span>
+<nav class="d-md-none fixed-bottom bg-white border-top d-flex justify-content-around py-2 shadow-lg" style="z-index: 1020;">
+    <a href="~/" class="bottom-nav-item flex-column">
+        <i class="bi bi-house fs-5"></i> <span>Trang chủ</span>
     </a>
-    <a href="~/Product" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
-        <i class="bi bi-box-seam fs-5 mb-1"></i>
-        <span style="font-size: 0.75rem; font-weight: 500;">Sản phẩm</span>
+    <a href="~/Product" class="bottom-nav-item flex-column">
+        <i class="bi bi-grid fs-5"></i> <span>Sản phẩm</span>
     </a>
-    <a href="~/Cart" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
-        <i class="bi bi-cart fs-5 mb-1"></i>
-        <span style="font-size: 0.75rem; font-weight: 500;">Giỏ hàng</span>
+    <a href="~/Cart" class="bottom-nav-item flex-column text-primary">
+        <div class="position-relative">
+            <i class="bi bi-cart-fill fs-5"></i>
+            <span class="cart-badge badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle badge-animated" style="font-size: 0.55rem; border: 1px solid white;">
+                0
+            </span>
+        </div>
+        <span>Giỏ hàng</span>
     </a>
-    @if (userName != null)
-    {
-        <a href="~/Account/Profile" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
-            <i class="bi bi-person fs-5 mb-1"></i>
-            <span style="font-size: 0.75rem; font-weight: 500;">Tài khoản</span>
-        </a>
-    }
-    else
-    {
-        <a href="~/Account/Login" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
-            <i class="bi bi-person fs-5 mb-1"></i>
-            <span style="font-size: 0.75rem; font-weight: 500;">Tài khoản</span>
-        </a>
-    }
+    <a href="~/Account/Profile" class="bottom-nav-item flex-column">
+        <i class="bi bi-person fs-5"></i> <span>Tôi</span>
+    </a>
 </nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tìm tất cả các phần tử có ID cartCount hoặc Class cart-badge
+        const cartCountElements = document.querySelectorAll('#cartCount, .cart-badge');
+
+        // Hàm đồng bộ số lượng từ Server
+        async function syncCartCount() {
+            try {
+                const response = await fetch('/Cart/Count', { method: 'GET', cache: 'no-cache' });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const displayCount = parseInt(data.count, 10) || 0;
+
+                    cartCountElements.forEach(el => {
+                        el.textContent = displayCount > 99 ? '99+' : displayCount;
+                        // Chỉ hiện badge nếu số lượng > 0
+                        el.style.display = displayCount > 0 ? 'inline-block' : 'none';
+                    });
+                }
+            } catch (err) {
+                console.error('Lỗi đồng bộ giỏ hàng:', err);
+            }
+        }
+
+        // Chạy ngay khi load trang
+        syncCartCount();
+
+        // Đưa hàm ra ngoài toàn cục để gọi từ các trang khác
+        window.refreshCartBadge = syncCartCount;
+
+        // Hàm thêm vào giỏ hàng
+        window.addToCart = async function (productID, productName, salePrice, photo, quantity = 1) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('ProductID', productID);
+                formData.append('ProductName', productName);
+                formData.append('SalePrice', salePrice);
+                formData.append('Photo', photo);
+                formData.append('Quantity', quantity);
+
+                const response = await fetch('/Cart/Add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                    return;
+                }
+
+                const result = await response.json();
+                if (result.success) {
+                    window.refreshCartBadge();
+                    // Thay vì alert, bạn có thể dùng Toast thông báo ở đây
+                    console.log(`Đã thêm ${productName} vào giỏ hàng`);
+                }
+            } catch (err) {
+                console.error("Lỗi khi thêm sản phẩm:", err);
+            }
+        };
+    });
+</script>

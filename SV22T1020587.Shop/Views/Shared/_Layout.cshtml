@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    var title = ViewBag.Title ?? "LiteCommerce";
+    var title = ViewBag.Title ?? "Dopamine EnT - Premium Store";
 }
 <!doctype html>
 <html lang="vi">
@@ -9,41 +9,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <link href="~/css/site.css" rel="stylesheet" />
-    <link href="~/css/shop-ui.css" rel="stylesheet" />
-
     <style>
-        body {
-            padding-top: 76px; 
+        :root {
+            --primary-color: #2563eb;
+            --bg-body: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.85);
         }
-        
-        .nav-search {
-            min-width: 360px;
-            max-width: 780px;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: #1e293b;
+            padding-top: 80px;
+        }
+
+        /* Card & Button Styles */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
         }
 
         @@media (max-width: 767px) {
             body {
-                padding-top: 92px;
-                padding-bottom: 80px; 
+                padding-top: 70px;
+                padding-bottom: 80px;
             }
-
-            .nav-search {
-                display: none;
-            }
-        }
-
-        .btn-rounded {
-            border-radius: .6rem;
         }
     </style>
 </head>
-
 <body class="d-flex flex-column min-vh-100">
 
     @await Html.PartialAsync("_Header")
@@ -52,10 +62,19 @@
         @RenderBody()
     </main>
 
-    @await Html.PartialAsync("_Footer")
+    @* LOGIC: Chỉ hiện Footer nếu đang ở Controller Home và Action Index *@
+    @{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="~/js/shop-ui.js"></script>
+        if (controller == "Home" && action == "Index")
+        {
+            @await Html.PartialAsync("_Footer")
+        }
+    }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>
