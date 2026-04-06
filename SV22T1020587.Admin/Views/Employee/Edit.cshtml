@@ -24,7 +24,9 @@
         }
 
         <div class="card card-primary card-outline shadow-sm">
-            <div class="card-header"><h5 class="card-title mb-0"><i class="bi bi-person-badge me-2"></i>Thông tin nhân viên</h5></div>
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-person-badge me-2"></i>Thông tin nhân viên</h5>
+            </div>
             <div class="card-body">
                 @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
 
@@ -32,13 +34,15 @@
                     <input type="hidden" name="EmployeeID" value="@Model.EmployeeID" />
                     <input type="hidden" name="Photo" value="@Model.Photo" />
 
+                    @* Họ và tên *@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label fw-bold">Họ và tên</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" name="FullName" value="@Model.FullName" required />
+                            <input type="text" class="form-control" name="FullName" value="@Model.FullName" required autofocus />
                         </div>
                     </div>
 
+                    @* Ngày sinh *@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label fw-bold">Ngày sinh (dd/mm/yyyy)</label>
                         <div class="col-sm-9">
@@ -47,6 +51,15 @@
                         </div>
                     </div>
 
+                    @* Địa chỉ *@
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Địa chỉ</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="Address" value="@Model.Address" />
+                        </div>
+                    </div>
+
+                    @* Email *@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label fw-bold">Email</label>
                         <div class="col-sm-9">
@@ -54,16 +67,28 @@
                         </div>
                     </div>
 
+                    @* SỐ ĐIỆN THOẠI - ĐÃ ĐƯỢC THÊM LẠI *@
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Số điện thoại</label>
+                        <div class="col-sm-9">
+                            <input type="tel" class="form-control" name="Phone" value="@Model.Phone" placeholder="Nhập số điện thoại nhân viên" />
+                        </div>
+                    </div>
+
+                    @* Ảnh đại diện *@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label fw-bold">Ảnh đại diện</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control" name="uploadPhoto" accept="image/*" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0])" />
+                            <input type="file" class="form-control" name="uploadPhoto" accept="image/*"
+                                   onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0])" />
                             <div class="mt-2 text-center text-sm-start">
-                                <img id="imgPreview" src="~/images/employees/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)" class="img-thumbnail" style="height: 120px;" />
+                                <img id="imgPreview" src="~/images/employees/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                                     class="img-thumbnail" style="height: 120px;" />
                             </div>
                         </div>
                     </div>
 
+                    @* Trạng thái *@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label fw-bold">Trạng thái</label>
                         <div class="col-sm-9">
@@ -84,7 +109,9 @@
     <script>
         $(document).ready(function () {
             // Tự động ẩn thông báo sau 3 giây
-            setTimeout(function () { $("#msg-alert").fadeOut("slow"); }, 3000);
+            setTimeout(function () {
+                $("#msg-alert").fadeOut("slow");
+            }, 3000);
         });
     </script>
 }
