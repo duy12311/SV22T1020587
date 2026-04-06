@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Đăng nhập tài khoản</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["InfoMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <form asp-action="Login" asp-controller="Account" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="returnUrl" value="@(ViewBag.ReturnUrl ?? "")" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="loginEmail" class="form-control" placeholder="Nhập email của bạn..." required />
+                            <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required />
+                            <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="remember" class="form-check-input" id="remember" />
+                            <label class="form-check-label" for="remember">Nhớ mật khẩu</label>
+                        </div>
+
+                        <div class="d-grid mt-4 mb-2">
+                            <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <div class="d-flex justify-content-between small px-2">
+                        <a asp-controller="Account" asp-action="ForgotPassword" class="text-decoration-none">Quên mật khẩu?</a>
+                        <span>Chưa có tài khoản? <a asp-action="Register" asp-controller="Account" class="text-decoration-none">Đăng ký ngay</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+          'use strict'
+          var forms = document.querySelectorAll('form')
+          Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+              // normalize email same as controller
+              var email = document.getElementById('loginEmail');
+              if (email && email.value) email.value = email.value.trim().toLowerCase();
+
+              if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+              }
+              form.classList.add('was-validated')
+            }, false)
+          })
+        })()
+    </script>
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

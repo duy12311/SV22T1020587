@@ -1,0 +1,243 @@
+﻿@model SV22T1020587.Models.Partner.Customer
+@using SV22T1020587.Models.Sales
+@using SV22T1020587.Models.DataDictionary
+@{
+    ViewBag.Title = "Tài khoản của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var orders = ViewBag.Orders as IEnumerable<OrderViewInfo> ?? Enumerable.Empty<OrderViewInfo>();
+    var provinces = ViewBag.Provinces as IEnumerable<Province> ?? Enumerable.Empty<Province>();
+}
+<div class="row">
+    <div class="col-lg-3 mb-3">
+        <div class="list-group sticky-top" style="top:100px;">
+            <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#profileInfo">Thông tin cá nhân</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#orderHistory">Lịch sử mua hàng</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#changePassword">Đổi mật khẩu</a>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="Home" asp-action="Index">← Trở về</a>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="profileInfo">
+                <div class="card p-4 shadow-sm">
+                    <h5>Thông tin cá nhân</h5>
+
+                    @if (TempData["InfoMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+
+                    <form method="post" action="~/Account/Profile">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="CustomerID" value="@Model?.CustomerID" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Họ và tên</label>
+                                <input type="text" name="CustomerName" class="form-control" value="@Model?.CustomerName" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên giao dịch (Contact)</label>
+                                <input type="text" name="ContactName" class="form-control" value="@Model?.ContactName" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="tel" name="Phone" class="form-control" value="@Model?.Phone" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="Email" class="form-control" value="@Model?.Email" required />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Địa chỉ</label>
+                                <input type="text" name="Address" class="form-control" value="@Model?.Address" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tỉnh/Thành</label>
+                                <select name="Province" class="form-select">
+                                    <option value="">-- Chọn tỉnh/thành --</option>
+                                    @foreach (var p in provinces)
+                                    {
+                                        var isSelected = string.Equals((p.ProvinceName ?? "").Trim(), (Model?.Province ?? "").Trim(), System.StringComparison.OrdinalIgnoreCase);
+                                        if (isSelected)
+                                        {
+                                            <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-12 text-end mt-2">
+                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Trạng thái đơn hàng (chưa giao thành công) -->
+                <div class="card p-3 shadow-sm mt-3">
+                    <h5>Trạng thái đơn hàng đang xử lý</h5>
+                    @{
+                        var activeOrders = orders.Where(o => o.Status != 4).ToList();
+                    }
+                    @if (!activeOrders.Any())
+                    {
+                        <div class="alert alert-info mb-0">Không có đơn hàng đang xử lý (chưa giao thành công).</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày</th>
+                                        <th>Trạng thái</th>
+                                        <th class="text-end">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var o in activeOrders)
+                                    {
+                                        string badgeClass = o.Status switch
+                                        {
+                                            1 => "bg-secondary",
+                                            2 => "bg-primary",
+                                            3 => "bg-info text-dark",
+                                            -1 => "bg-danger",
+                                            -2 => "bg-dark",
+                                            _ => "bg-light text-dark"
+                                        };
+                                        <tr>
+                                            <td>@o.OrderID</td>
+                                            <td>@o.OrderTime.ToString("g")</td>
+                                            <td><span class="badge @badgeClass">@o.StatusDescription</span></td>
+                                            <td class="text-end">
+                                                <a class="btn btn-sm btn-outline-primary" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">Xem</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="small text-muted mt-2 mb-0">Những đơn ở đây là các đơn chưa ở trạng thái "Thành công".</p>
+                    }
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="orderHistory">
+                <div class="card p-3 shadow-sm">
+                    <h5>Lịch sử mua hàng</h5>
+                    @if (!orders.Any())
+                    {
+                        <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Trạng thái</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var o in orders)
+                                    {
+                                        <tr>
+                                            <td>@o.OrderID</td>
+                                            <td>@o.OrderTime.ToString("g")</td>
+                                            <td>@o.StatusDescription</td>
+                                            <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">Xem</a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="small text-muted">Nhấn "Xem" để xem chi tiết đơn hàng.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="changePassword">
+                <div class="card p-4 shadow-sm">
+                    <h5>Đổi mật khẩu</h5>
+
+                    @* show messages when redirected back *@
+                    @if (TempData["InfoMessage"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
+                    <form method="post" action="~/Account/ChangePassword">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" name="currentPassword" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <input type="password" name="newPassword" class="form-control" required minlength="6" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nhập lại mật khẩu mới</label>
+                            <input type="password" name="confirmPassword" class="form-control" required />
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Cập nhật mật khẩu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+          // If a hash is present on load, try to activate the corresponding list-group tab.
+          try {
+            var hash = location.hash;
+            if (hash) {
+              // find anchor in the profile list group that points to the fragment
+              var link = document.querySelector('.list-group a[href="' + hash + '"]');
+              if (link && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                // show the tab associated with the link
+                var tab = bootstrap.Tab.getOrCreateInstance(link);
+                tab.show();
+                // optionally scroll the tab into view (useful if link came from another page)
+                link.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+          } catch (e) {
+            // fail silently — UI still usable
+            console.error(e);
+          }
+        })();
+    </script>
+}

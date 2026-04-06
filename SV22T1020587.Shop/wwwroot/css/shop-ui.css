@@ -1,0 +1,82 @@
+document.addEventListener('DOMContentLoaded', function () {
+  // Sticky header tiny elevation handled by CSS; add scroll class for additional effects
+  const header = document.querySelector('.header-navbar');
+  if (header) {
+    const onScroll = () => {
+      if (window.scrollY > 6) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Cart badge elements
+  const cartCountEl = document.getElementById('cartCount');
+  const cartCountMobileEl = document.getElementById('cartCountMobile');
+
+  // Helpers to update badges and persist quick-count in sessionStorage
+  function updateBadges(value) {
+    const v = Number(value) || 0;
+    if (cartCountEl) cartCountEl.textContent = v;
+    if (cartCountMobileEl) cartCountMobileEl.textContent = v;
+    try { sessionStorage.setItem('lite_cart_count', String(v)); } catch { }
+  }
+
+  // Initialize from server-rendered value or sessionStorage
+  try {
+    const serverVal = parseInt(cartCountEl?.textContent ?? '0', 10) || 0;
+    const clientVal = parseInt(sessionStorage.getItem('lite_cart_count') ?? '0', 10) || 0;
+
+    // prefer the larger value (client may have more recent increments)
+    const initial = Math.max(serverVal, clientVal);
+    updateBadges(initial);
+  } catch { }
+
+  // Expose functions so other scripts can update badges after a successful add/update
+  window.setCartCount = function (n) { updateBadges(n); };
+  window.incrementCartCount = function (delta = 1) {
+    try {
+      const cur = parseInt(cartCountEl?.textContent || '0', 10) || 0;
+      updateBadges(cur + Number(delta));
+    } catch { updateBadges(1); }
+  };
+
+  // Removed optimistic click-based increment (was causing double increments).
+  // Now callers should call window.incrementCartCount() only after a successful server response.
+
+  // ensure dropdowns initialize if automatic behavior is blocked
+  try {
+    var dropdownTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+    dropdownTriggerList.forEach(function (el) {
+      // eslint-disable-next-line no-undef
+      new bootstrap.Dropdown(el);
+    });
+  } catch (e) {
+    // if bootstrap not available, fail silently — console for diagnostics
+    console && console.error('Dropdown init failed', e);
+  }
+});
+
+async function postLogout() {
+  try {
+    const tokenElem = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenElem ? tokenElem.value : '';
+    await fetch('/Account/Logout', {
+      method: 'POST',
+      headers: {
+        'RequestVerificationToken': token,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      credentials: 'same-origin'
+    });
+    window.location = '/';
+  } catch (e) {
+    console.error(e);
+    window.location = '/';
+  }
+}
+document.addEventListener('click', function (e) {
+  if (e.target && e.target.id === 'btnLogout') {
+    postLogout();
+  }
+});

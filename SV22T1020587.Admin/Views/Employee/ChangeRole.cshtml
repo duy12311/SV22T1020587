@@ -1,0 +1,116 @@
+﻿@model SV22T1020587.Models.HR.Employee
+@{
+    ViewBag.Title = "Phân quyền nhân viên";
+}
+
+@section PageToolBar {
+    <button type="submit" form="formChangeRole" class="btn btn-primary">
+        <i class="bi bi-shield-check me-1"></i>
+        Lưu phân quyền
+    </button>
+    <a href="~/Employee" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-shield-check me-2 text-primary"></i>
+                    Phân quyền cho nhân viên
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form id="formChangeRole" action="~/Employee/SaveRole" method="post">
+                    @* Hidden field để gửi EmployeeID lên Controller *@
+                    <input type="hidden" name="employeeID" value="@Model.EmployeeID" />
+
+                    <fieldset class="mb-4 border p-3 rounded">
+                        <legend class="float-none w-auto px-2 fs-6 fw-bold text-muted mb-0">
+                            <i class="bi bi-person me-1"></i>
+                            Thông tin nhân viên
+                        </legend>
+
+                        <dl class="row mb-0 mt-2">
+                            <dt class="col-sm-3 text-muted">Họ và tên:</dt>
+                            <dd class="col-sm-9 fw-bold">@Model.FullName</dd>
+
+                            <dt class="col-sm-3 text-muted">Điện thoại:</dt>
+                            <dd class="col-sm-9">@Model.Phone</dd>
+
+                            <dt class="col-sm-3 text-muted">Email:</dt>
+                            <dd class="col-sm-9">@Model.Email</dd>
+                        </dl>
+                    </fieldset>
+
+                    <fieldset class="border p-3 rounded">
+                        <legend class="float-none w-auto px-2 fs-6 fw-bold text-muted mb-0">
+                            <i class="bi bi-list-check me-1"></i>
+                            Danh sách quyền hạn
+                        </legend>
+
+                        <div class="table-responsive mt-2">
+                            <table class="table table-bordered table-hover mb-0">
+                                <thead class="table-light text-center">
+                                    <tr>
+                                        <th style="width: 80px;">Chọn</th>
+                                        <th style="width: 200px;">Tên quyền</th>
+                                        <th>Mô tả chức năng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        // Danh sách các quyền hạn theo yêu cầu mới
+                                        var allRoles = new List<dynamic>
+                                                                        {
+                                                                        new { RoleName = "Admin", Description = "Quản trị viên: Toàn quyền quản trị hệ thống, nhân viên và bảo mật." },
+                                                                        new { RoleName = "Staff", Description = "Quản lý dữ liệu: Quản lý khách hàng, nhà cung cấp và các danh mục cơ bản." },
+                                                                        new { RoleName = "Kho",   Description = "Quản lý hàng hóa: Theo dõi tồn kho, nhập xuất và thông tin sản phẩm." },
+                                                                        new { RoleName = "Sale",  Description = "Quản lý đơn hàng: Tiếp nhận, xử lý, giao hàng và theo dõi doanh thu." }
+                                                                        };
+
+                                        // Chuyển chuỗi RoleNames từ DB (ví dụ: "Admin,Kho") thành mảng để so sánh
+                                        var currentRoles = Model.RoleNames?.Split(',')
+                                        .Select(r => r.Trim())
+                                        .ToList() ?? new List<string>();
+                                    }
+
+                                    @foreach (var role in allRoles)
+                                    {
+                                        <tr>
+                                            <td class="text-center align-middle">
+                                                <div class="form-check d-flex justify-content-center">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           name="roles"
+                                                           value="@role.RoleName"
+                                                           id="role_@role.RoleName"
+                                                           @(currentRoles.Contains((string)role.RoleName) ? "checked" : "") />
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <label class="form-check-label fw-bold" for="role_@role.RoleName">
+                                                    @* Đổi màu Badge để phân biệt các quyền *@
+                                                    @{
+                                                        string badgeClass = role.RoleName == "Admin" ? "bg-danger" :
+                                                        role.RoleName == "Staff" ? "bg-info" :
+                                                        role.RoleName == "Kho" ? "bg-warning text-dark" : "bg-success";
+                                                    }
+                                                    <span class="badge @badgeClass" style="min-width: 80px;">@role.RoleName</span>
+                                                </label>
+                                            </td>
+                                            <td class="align-middle text-muted small">@role.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

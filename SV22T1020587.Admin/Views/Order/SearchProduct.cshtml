@@ -1,0 +1,99 @@
+﻿@model SV22T1020587.Models.Common.PagedResult<SV22T1020587.Models.Catalog.Product>
+@using SV22T1020587.BusinessLayers
+@{
+    Layout = null;
+}
+
+@if (Model.DataItems != null && Model.DataItems.Count > 0)
+{
+    <div class="list-group">
+        @foreach (var item in Model.DataItems)
+        {
+            <form action="~/Order/AddToCart" method="post" class="frmAddToCart list-group-item list-group-item-action mb-2 p-2 shadow-sm">
+                <input type="hidden" name="ProductID" value="@item.ProductID" />
+                <input type="hidden" name="ProductName" value="@item.ProductName" />
+                <input type="hidden" name="Photo" value="@item.Photo" />
+                <input type="hidden" name="Unit" value="@item.Unit" />
+
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto" style="width:80px;">
+                        <div class="bg-light rounded text-center" style="height:64px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                            <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                                 class="img-fluid" style="max-height:64px; object-fit:contain;"
+                                 onerror="this.src='/images/products/nophoto.png'" />
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="fw-semibold text-truncate" title="@item.ProductName" style="font-size:0.95rem;">
+                            @item.ProductName
+                        </div>
+
+                        @{
+                            var attrs = await CatalogDataService.ListAttributesAsync(item.ProductID);
+                        }
+                        <div class="text-muted small" style="min-height:28px;">
+                            @if (attrs != null && attrs.Count > 0)
+                            {
+                                foreach (var a in attrs.Take(2))
+                                {
+                                    <span class="d-inline-block me-2">• @a.AttributeName: @a.AttributeValue</span>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-auto text-end" style="width:190px;">
+                        <div class="mb-1">
+                            <label class="small text-muted mb-0">Giá bán</label>
+                            <input type="text" class="form-control form-control-sm text-right number-separator"
+                                   name="SalePrice" value="@item.Price.ToString("N0")" />
+                        </div>
+                        <div class="mb-1">
+                            <label class="small text-muted mb-0">SL</label>
+                            <input type="number" name="Quantity" min="1" value="1" class="form-control form-control-sm text-center" />
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-cart-plus"></i> Chọn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+
+    @if (Model.PageCount > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <p class="text-muted mb-0 small">Tổng: <strong>@Model.RowCount</strong></p>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                    <a class="page-link py-1 px-2" href="javascript:;" onclick="doSearch(@(Model.Page - 1))"><i class="bi bi-chevron-left"></i></a>
+                </li>
+                @for (int p = 1; p <= Model.PageCount; p++)
+                {
+                    if (p == Model.Page)
+                    {
+                        <li class="page-item active"><span class="page-link py-1 px-2">@p</span></li>
+                    }
+                    else if (p <= 2 || p > Model.PageCount - 1 || (p >= Model.Page - 1 && p <= Model.Page + 1))
+                    {
+                        <li class="page-item"><a class="page-link py-1 px-2" href="javascript:;" onclick="doSearch(@p)">@p</a></li>
+                    }
+                }
+                <li class="page-item @(Model.Page >= Model.PageCount ? "disabled" : "")">
+                    <a class="page-link py-1 px-2" href="javascript:;" onclick="doSearch(@(Model.Page + 1))"><i class="bi bi-chevron-right"></i></a>
+                </li>
+            </ul>
+        </div>
+    }
+}
+else
+{
+    <div class="text-center py-4 bg-white rounded border">
+        <img src="~/images/no-results.png" style="width:60px; opacity:0.5" class="mb-2" />
+        <p class="text-muted small">Không tìm thấy mặt hàng nào!</p>
+    </div>
+}

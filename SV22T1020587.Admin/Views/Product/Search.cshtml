@@ -1,0 +1,108 @@
+﻿@model SV22T1020587.Models.Common.PagedResult<SV22T1020587.Models.Catalog.Product>
+
+@{
+    Layout = null; // Bắt buộc phải có dòng này
+}
+
+<p style="margin:10px 0 10px 0">
+    Có tất cả <strong>@Model.RowCount</strong> mặt hàng trong tổng số <strong>@Model.PageCount</strong> trang.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover table-striped">
+        <thead class="table-secondary">
+            <tr>
+                <th style="width:80px" class="text-center">Ảnh</th>
+                <th>Tên mặt hàng</th>
+                <th>Đơn vị tính</th>
+                <th style="width:120px" class="text-end">Giá bán</th>
+                <th style="width:120px" class="text-center">Trạng thái</th>
+                <th style="width:100px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.DataItems)
+            {
+                <tr>
+                    <td class="text-center align-middle">
+                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                             style="width:70px; height: 70px; object-fit: cover;" class="img-thumbnail" loading="lazy" />
+                    </td>
+                    <td class="align-middle">
+                        <strong>@item.ProductName</strong><br />
+                        @{
+                            var desc = item.ProductDescription ?? "";
+                            var shortDesc = desc.Length > 80 ? desc.Substring(0, 80) + "..." : desc;
+                        }
+                        @if (!string.IsNullOrEmpty(shortDesc))
+                        {
+                            <small class="text-muted">@shortDesc</small>
+                        }
+                    </td>
+                    <td class="align-middle">@item.Unit</td>
+                    <td class="align-middle text-end">@item.Price.ToString("N0")</td>
+                    <td class="align-middle text-center">
+                        @if (item.IsSelling)
+                        {
+                            <span class="badge bg-success">Đang bán</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Dừng bán</span>
+                        }
+                    </td>
+                    <td class="align-middle text-center text-nowrap">
+                        <a href="~/Product/Edit/@item.ProductID" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="~/Product/Delete/@item.ProductID" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.PageCount > 1)
+{
+    <div class="text-center mt-3">
+        <ul class="pagination justify-content-center">
+            @{
+                // Build a compact pager with Prev / numbered pages (with ellipsis) / Next
+                var pages = Model.GetDisplayPages(3); // show up to 7 pages around current
+                int current = Model.Page;
+                int last = Model.PageCount;
+            }
+
+            <li class="page-item @(current == 1 ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" data-page="@(current > 1 ? current - 1 : 1)" aria-label="Prev"><i class="bi bi-chevron-left"></i></a>
+            </li>
+
+            @foreach (var p in pages)
+            {
+                if (p.IsEllipsis)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+                else if (p.IsCurrent)
+                {
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">@p.Page</span>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:;" data-page="@p.Page">@p.Page</a>
+                    </li>
+                }
+            }
+
+            <li class="page-item @(current == last ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" data-page="@(current < last ? current + 1 : last)" aria-label="Next"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        </ul>
+    </div>
+}

@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "Quản lý Đơn hàng";
+}
+@section PageToolBar {
+    <a href="~/Order/Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Lập đơn hàng</a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch" action="~/Order/Search" method="post" onsubmit="event.preventDefault(); doSearch(1);">
+            <div class="row gx-2">
+                <div class="col-sm-3 mb-2">
+                    <select class="form-select" name="status">
+                        <option value="0" selected="@(ViewBag.Status == 0)">-- Trạng thái --</option>
+                        <option value="1" selected="@(ViewBag.Status == 1)">Đơn hàng mới (Chờ duyệt)</option>
+                        <option value="2" selected="@(ViewBag.Status == 2)">Đơn hàng đã duyệt (Chờ chuyển hàng)</option>
+                        <option value="3" selected="@(ViewBag.Status == 3)">Đơn hàng đang được giao</option>
+                        <option value="4" selected="@(ViewBag.Status == 4)">Đơn hàng đã hoàn tất</option>
+                        <option value="-1" selected="@(ViewBag.Status == -1)">Đơn hàng bị hủy</option>
+                        <option value="-2" selected="@(ViewBag.Status == -2)">Đơn hàng bị từ chối</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-2 mb-2">
+                    <input type="text" name="dateFrom" class="form-control date-picker" placeholder="Từ ngày (dd/MM/yyyy)" value="@ViewBag.DateFrom" />
+                </div>
+                <div class="col-sm-2 mb-2">
+                    <input type="text" name="dateTo" class="form-control date-picker" placeholder="Đến ngày (dd/MM/yyyy)" value="@ViewBag.DateTo" />
+                </div>
+
+                <div class="col-sm-5 mb-2">
+                    <div class="input-group">
+                        <input type="text" name="searchValue" class="form-control" placeholder="Tìm tên khách hàng hoặc người giao hàng..." value="@ViewBag.SearchValue">
+                        <button class="btn btn-info d-flex align-items-center" type="submit">
+                            <i class="bi bi-search me-1"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="searchResult"></div>
+
+@section Scripts {
+    <script>
+        function doSearch(page) {
+            var searchCondition = $("#formSearch").serializeArray();
+            searchCondition.push({ name: "page", value: page });
+
+            $.ajax({
+                url: $("#formSearch").prop("action"),
+                type: $("#formSearch").prop("method"),
+                data: searchCondition,
+                success: function (data) {
+                    $("#searchResult").html(data);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // Tự động tìm lại trang cũ
+            doSearch(@ViewBag.Page);
+
+            // Khởi tạo DatePicker cho các input chọn ngày
+            $('.date-picker').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+}

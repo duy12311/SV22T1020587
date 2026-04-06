@@ -1,0 +1,34 @@
+﻿[HttpPost]
+public IActionResult AddToCart(CartItem item)
+{
+    // 1. Kiểm tra dữ liệu đầu vào cơ bản
+    if (item.ProductID <= 0 || item.Quantity <= 0)
+        return Json("Dữ liệu mặt hàng không hợp lệ.");
+
+    if (item.SalePrice < 0)
+        return Json("Giá bán không được nhỏ hơn 0.");
+
+    // 2. Lấy giỏ hàng hiện tại từ Session
+    var cart = GetShoppingCart();
+
+    // 3. Kiểm tra xem mặt hàng này đã có trong giỏ chưa
+    var existsProduct = cart.FirstOrDefault(m => m.ProductID == item.ProductID);
+
+    if (existsProduct == null)
+    {
+        // Nếu chưa có: Thêm mới vào danh sách
+        cart.Add(item);
+    }
+    else
+    {
+        // Nếu đã có: Cộng dồn số lượng và cập nhật lại giá bán mới nhất
+        existsProduct.Quantity += item.Quantity;
+        existsProduct.SalePrice = item.SalePrice;
+    }
+
+    // 4. Lưu giỏ hàng đã cập nhật ngược lại vào Session
+    HttpContext.Session.SetObjectAsJson(SHOPPING_CART, cart);
+
+    // 5. Trả về chuỗi rỗng để báo hiệu cho AJAX là đã thành công
+    return Json("");
+}

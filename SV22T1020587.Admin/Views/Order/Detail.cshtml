@@ -1,0 +1,212 @@
+﻿@model SV22T1020587.Models.Sales.OrderViewInfo
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+}
+
+@if (Model == null)
+{
+    <div class="container-fluid">
+        <div class="alert alert-danger mt-3">
+            <h5><i class="icon fas fa-ban"></i> Lỗi!</h5>
+            Không tìm thấy thông tin đơn hàng yêu cầu.
+        </div>
+        <a href="~/Order" class="btn btn-default">Quay lại danh sách</a>
+    </div>
+}
+else
+{
+    @section PageToolBar {
+        <div class="btn-group">
+            @if ((int)Model.Status == 1 || (int)Model.Status == 2 || (int)Model.Status == 3)
+            {
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-gear me-1"></i> Xử lý đơn hàng
+                </button>
+                <ul class="dropdown-menu">
+                    @if ((int)Model.Status == 1)
+                    {
+                        <li>
+                            <a class="dropdown-item btn-accept" href="~/Order/Accept/@Model.OrderID">
+                                Duyệt đơn hàng
+                            </a>
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="~/Order/Reject/@Model.OrderID" onclick="return confirm('Xác nhận từ chối đơn hàng này?')">Từ chối đơn hàng</a></li>
+                        <li><a class="dropdown-item text-danger" href="~/Order/Cancel/@Model.OrderID" onclick="return confirm('Xác nhận hủy đơn hàng này?')">Hủy đơn hàng</a></li>
+                    }
+                    else if ((int)Model.Status == 2)
+                    {
+                        <li><a class="dropdown-item btn-modal" href="~/Order/Shipping/@Model.OrderID">Chuyển giao hàng</a></li>
+                        <li><a class="dropdown-item text-danger" href="~/Order/Reject/@Model.OrderID" onclick="return confirm('Xác nhận từ chối đơn hàng này?')">Từ chối đơn hàng</a></li>
+                        <li><a class="dropdown-item text-danger" href="~/Order/Cancel/@Model.OrderID" onclick="return confirm('Xác nhận hủy đơn hàng này?')">Hủy đơn hàng</a></li>
+                    }
+                    else if ((int)Model.Status == 3)
+                    {
+                        <li><a class="dropdown-item" href="~/Order/Finish/@Model.OrderID" onclick="return confirm('Xác nhận đơn hàng đã hoàn tất?')">Xác nhận hoàn tất</a></li>
+                        <li><a class="dropdown-item text-danger" href="~/Order/Cancel/@Model.OrderID" onclick="return confirm('Xác nhận hủy đơn hàng này?')">Hủy đơn hàng</a></li>
+                    }
+                </ul>
+            }
+        </div>
+
+        @if ((int)Model.Status == -1 || (int)Model.Status == -2 || (int)Model.Status == 4)
+        {
+            <a href="~/Order/Delete/@Model.OrderID" class="btn btn-danger ms-1" onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?')">
+                <i class="bi bi-trash"></i> Xóa đơn hàng
+            </a>
+        }
+        <a href="~/Order" class="btn btn-default ms-1">Quay lại</a>
+    }
+
+    <div class="card card-primary card-outline">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5 class="text-primary"><i class="bi bi-person-badge"></i> Thông tin khách hàng</h5>
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <th style="width: 150px">Khách hàng:</th>
+                            <td>@Model.CustomerName</td>
+                        </tr>
+                        <tr>
+                            <th>Tên giao dịch:</th>
+                            <td>@Model.CustomerContactName</td>
+                        </tr>
+                        <tr>
+                            <th>Điện thoại:</th>
+                            <td>@Model.CustomerPhone</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>@Model.CustomerEmail</td>
+                        </tr>
+                        <tr>
+                            <th>Địa chỉ nhận:</th>
+                            <td>@Model.DeliveryAddress</td>
+                        </tr>
+                        <tr>
+                            <th>Tỉnh/Thành:</th>
+                            <td>@Model.DeliveryProvince</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-success"><i class="bi bi-truck"></i> Thông tin giao hàng</h5>
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <th style="width: 150px">Người giao hàng:</th>
+                            <td>@(string.IsNullOrEmpty(Model.ShipperName) ? "(Chưa có)" : Model.ShipperName)</td>
+                        </tr>
+                        <tr>
+                            <th>Điện thoại:</th>
+                            <td>@Model.ShipperPhone</td>
+                        </tr>
+                        <tr>
+                            <th>Nhân viên phụ trách:</th>
+                            <td>@Model.EmployeeName</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái:</th>
+                            <td class="text-bold text-danger">@Model.StatusDescription</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h5 class="text-info mt-4"><i class="bi bi-cart3"></i> Chi tiết các mặt hàng</h5>
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="bg-light">
+                        <th class="text-center">STT</th>
+                        <th>Tên mặt hàng</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-right">Giá bán</th>
+                        <th class="text-right">Thành tiền</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Details != null)
+                    {
+                        int stt = 1;
+                        decimal total = 0;
+                        foreach (var item in ViewBag.Details)
+                        {
+                            decimal thanhTien = item.Quantity * item.SalePrice;
+                            total += thanhTien;
+                            <tr>
+                                <td class="text-center">@(stt++)</td>
+                                <td>@item.ProductName</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-right">@item.SalePrice.ToString("N0")</td>
+                                <td class="text-right">@thanhTien.ToString("N0")</td>
+                                <td class="text-center">
+                                    @if ((int)Model.Status == 1)
+                                    {
+                                        <a href="~/Order/EditDetail/@Model.OrderID?productId=@item.ProductID" class="btn btn-xs btn-primary btn-modal">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="~/Order/DeleteDetail/@Model.OrderID?productId=@item.ProductID" class="btn btn-xs btn-danger" onclick="return confirm('Xác nhận xóa mặt hàng này khỏi đơn hàng?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        <tr class="table-warning">
+                            <td colspan="4" class="text-right"><strong>Tổng cộng:</strong></td>
+                            <td class="text-right text-danger"><strong>@total.ToString("N0")</strong></td>
+                            <td></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* Khung chứa Modal để hiển thị giao diện Shipping, Invoice.Create hoặc EditDetail *@
+    <div id="modal-container" class="modal fade" role="dialog" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" id="modal-content">
+            </div>
+        </div>
+    </div>
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Hiển thị modal khi bấm vào nút "Chuyển giao hàng" hoặc "Sửa chi tiết"
+            $(".btn-modal").click(function (e) {
+                e.preventDefault();
+                var link = $(this).attr("href");
+
+                $.get(link, function (data) {
+                    $("#modal-content").html(data);
+                    $("#modal-container").modal("show");
+                });
+            });
+
+            // Intercept Accept to accept order and show modal (invoice or shipping)
+            $(".btn-accept").click(function (e) {
+                e.preventDefault();
+                if (!confirm('Xác nhận duyệt đơn hàng này?')) return;
+
+                var link = $(this).attr("href");
+                $.get(link, function (data) {
+                    // server returns partial view HTML for modal (Invoice/Create or Order/Shipping)
+                    $("#modal-content").html(data);
+                    $("#modal-container").modal("show");
+                }).fail(function (xhr) {
+                    // If server redirected (non-AJAX case) or error, fall back to full reload
+                    if (xhr.status === 200 && xhr.responseText) {
+                        $("#modal-content").html(xhr.responseText);
+                        $("#modal-container").modal("show");
+                    } else {
+                        location.reload();
+                    }
+                });
+            });
+        });
+    </script>
+}

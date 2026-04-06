@@ -1,0 +1,93 @@
+﻿@model IList<SV22T1020587.Models.Sales.CartItem>
+@{
+    ViewBag.Title = "Thanh toán";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal orderTotal = Model?.Sum(i => i.TotalPrice) ?? 0;
+}
+<h3>Thanh toán</h3>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card p-4 shadow-sm">
+            <h5>Thông tin giao hàng</h5>
+
+            <form method="post" action="~/Order/Init">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="CustomerName" class="form-control" required
+                           value="@ViewBag.CustomerName" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" name="Phone" class="form-control" required
+                           value="@ViewBag.CustomerPhone" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tỉnh/Thành phố</label>
+                    <input type="text" name="DeliveryProvince" class="form-control" required
+                           value="@ViewBag.CustomerProvince" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ chi tiết</label>
+                    <input type="text" name="DeliveryAddress" class="form-control" required
+                           value="@ViewBag.CustomerAddress" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Phương thức thanh toán</label>
+                    <select name="PaymentMethod" class="form-select" required>
+                        <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+                        <option value="bank_transfer">Chuyển khoản</option>
+                        <option value="card">Thẻ tín dụng / ghi nợ</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea name="Note" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg btn-rounded">Xác nhận đặt hàng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card p-3 shadow-sm">
+            <h5>Tóm tắt đơn hàng</h5>
+            <ul class="list-group list-group-flush mb-3">
+                @foreach (var it in Model)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-semibold small">@it.ProductName</div>
+                            <small class="text-muted">Số lượng: @it.Quantity</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-danger">@String.Format("{0:N0}", it.TotalPrice) VND</div>
+                        </div>
+                    </li>
+                }
+            </ul>
+
+            <div class="d-flex justify-content-between">
+                <div>Phí vận chuyển</div>
+                <div class="fw-semibold">25,000 VND</div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="fw-bold">Tổng thanh toán</div>
+                <div class="fs-5 fw-bold text-danger">@String.Format("{0:N0}", orderTotal + 25000) VND</div>
+            </div>
+        </div>
+    </div>
+</div>

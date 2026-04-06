@@ -1,0 +1,79 @@
+﻿@model SV22T1020587.Models.Partner.Customer
+@using SV22T1020587.Models.DataDictionary
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+    var provinces = ViewBag.Provinces as IEnumerable<Province> ?? Enumerable.Empty<Province>();
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Đăng ký tài khoản mới</h4>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <form asp-action="Register" asp-controller="Account" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Tên khách hàng</label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ và tên..." required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tên giao dịch</label>
+                            <input asp-for="ContactName" class="form-control" placeholder="Tên thường gọi..." required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="VD: email@example.com" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required minlength="6" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Điện thoại</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ của bạn..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tỉnh/Thành phố</label>
+                            <select asp-for="Province" name="Province" class="form-select">
+                                <option value="">-- Chọn tỉnh/thành --</option>
+                                @foreach (var p in provinces)
+                                {
+                                    var isSelected = string.Equals((p.ProvinceName ?? "").Trim(), (Model?.Province ?? "").Trim(), System.StringComparison.OrdinalIgnoreCase);
+                                    if (isSelected)
+                                    {
+                                        <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-block">Đăng ký ngay</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    Đã có tài khoản? <a asp-action="Login" asp-controller="Account">Đăng nhập tại đây</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

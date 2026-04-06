@@ -1,0 +1,58 @@
+﻿@model SV22T1020587.Models.Sales.OrderViewInfo
+@{
+    Layout = null; // this view is intended to be loaded in a modal
+}
+<div class="modal-header text-bg-primary">
+    <h5 class="modal-title">Lập hóa đơn cho đơn hàng #@Model.OrderID</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="post" asp-action="Issue" asp-controller="Invoice">
+    <input type="hidden" name="orderID" value="@Model.OrderID" />
+    <div class="modal-body">
+        <div class="mb-2"><strong>Khách hàng:</strong> @Model.CustomerName</div>
+        <div class="mb-2"><strong>Điện thoại:</strong> @Model.CustomerPhone</div>
+        <div class="mb-2"><strong>Địa chỉ:</strong> @(string.IsNullOrEmpty(Model.DeliveryAddress) ? "N/A" : Model.DeliveryAddress)</div>
+
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Tên hàng</th>
+                        <th class="text-center">SL</th>
+                        <th class="text-end">Đơn giá</th>
+                        <th class="text-end">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        decimal total = 0;
+                        if (ViewBag.OrderDetails != null)
+                        {
+                            foreach (var d in ViewBag.OrderDetails)
+                            {
+                                var amount = d.Quantity * d.SalePrice;
+                                total += amount;
+                                <tr>
+                                    <td>@d.ProductName</td>
+                                    <td class="text-center">@d.Quantity</td>
+                                    <td class="text-end">@d.SalePrice.ToString("N0")</td>
+                                    <td class="text-end">@amount.ToString("N0")</td>
+                                </tr>
+                            }
+                        }
+                    }
+                    <tr class="table-light">
+                        <td colspan="3" class="text-end"><strong>Tổng cộng</strong></td>
+                        <td class="text-end text-danger"><strong>@total.ToString("N0")</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-receipt"></i> Lập hóa đơn</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+    </div>
+</form>

@@ -1,0 +1,114 @@
+﻿@using System.Security.Claims
+@{
+    var userName = User?.Identity?.IsAuthenticated == true ? User.Identity.Name : null;
+    var cartCount = ViewBag.CartCount ?? 0;
+    var claimEmail = User?.FindFirst(ClaimTypes.Email)?.Value ?? "";
+    var claimDisplayName = User?.FindFirst(ClaimTypes.Name)?.Value ?? userName ?? "";
+}
+
+<header class="header-navbar fixed-top shadow-sm bg-white py-2">
+    <div class="container">
+        <div class="header-inner d-flex align-items-center justify-content-between">
+
+            <a class="brand d-flex align-items-center text-decoration-none text-primary" href="~/">
+                <div class="brand-logo me-2 fs-3"><i class="bi bi-bag-check-fill"></i> SC</div>
+                <div class="brand-title fw-bold fs-4 text-dark mb-0 d-none d-sm-block">Dopamine EnT</div>
+            </a>
+
+            <form class="header-search input-group flex-fill mx-3 mx-lg-5" style="max-width: 600px;" method="get" action="~/Product/Index" role="search">
+                <input class="form-control shadow-none" name="q" type="search" placeholder="Tìm kiếm sản phẩm, thương hiệu..." aria-label="Search" />
+                <button class="btn btn-primary px-3 shadow-none" type="submit" title="Tìm kiếm">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+
+            <div class="header-actions d-flex align-items-center gap-3 gap-md-4">
+
+                <a class="icon-btn d-none d-md-flex align-items-center text-dark text-decoration-none" href="~/Product" title="Danh mục" aria-label="Danh mục">
+                    <i class="bi bi-list fs-4"></i>
+                </a>
+
+                <a class="icon-btn position-relative d-flex align-items-center text-dark text-decoration-none" href="~/Cart" title="Giỏ hàng" aria-label="Giỏ hàng">
+                    <i class="bi bi-cart fs-4" aria-hidden="true"></i>
+                    <span class="visually-hidden">Giỏ hàng</span>
+                    <span id="cartCount" class="badge bg-danger rounded-pill position-absolute translate-middle" style="top: 2px; left: 90%; font-size: 0.7rem; padding: 0.3em 0.5em;">
+                        @cartCount
+                    </span>
+                </a>
+
+                @if (userName != null)
+                {
+                    <div class="dropdown d-none d-md-inline">
+                        <button type="button" id="accountDropdown" class="btn btn-link text-dark text-decoration-none dropdown-toggle d-flex align-items-center p-0" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tài khoản">
+                            <i class="bi bi-person-circle fs-4 text-secondary"></i>
+                            <span class="ms-2 d-none d-lg-inline fw-semibold" style="font-size: 0.95rem;">@claimDisplayName</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="accountDropdown">
+                            <li class="px-3 py-2 small text-muted">@claimEmail</li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li class="px-3">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0 p-0">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger w-100 fw-medium">Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <a class="btn btn-light border-0 d-md-none p-2 rounded-circle" href="~/Account/Profile" title="Tài khoản">
+                        <i class="bi bi-person fs-5"></i>
+                    </a>
+                }
+                else
+                {
+                    <div class="d-none d-md-flex gap-2">
+                        <a class="btn btn-outline-primary fw-medium px-3" href="~/Account/Login">Đăng nhập</a>
+                        <a class="btn btn-primary fw-medium px-3" href="~/Account/Register">Đăng ký</a>
+                    </div>
+
+                    <a class="btn btn-light border-0 d-md-none p-2 rounded-circle" href="~/Account/Login">
+                        <i class="bi bi-person fs-5"></i>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</header>
+
+<a href="~/Cart" class="fab-cart d-md-none shadow" title="Giỏ hàng" aria-label="Giỏ hàng" style="position: fixed; bottom: 80px; right: 20px; z-index: 1030; background: #fff; padding: 12px; border-radius: 50%;">
+    <div class="position-relative d-flex align-items-center justify-content-center">
+        <i class="bi bi-cart fs-3 text-primary"></i>
+        <span class="cart-badge badge bg-danger rounded-pill position-absolute translate-middle" id="cartCountMobile" style="top: 0; left: 100%; font-size: 0.7rem;">
+            @cartCount
+        </span>
+    </div>
+</a>
+
+<nav class="bottom-nav d-md-none shadow-lg bg-white position-fixed bottom-0 w-100 d-flex justify-content-around py-2" aria-label="Bottom navigation" style="z-index: 1020; border-top: 1px solid #eee;">
+    <a href="~/" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
+        <i class="bi bi-house-door fs-5 mb-1"></i>
+        <span style="font-size: 0.75rem; font-weight: 500;">Trang chủ</span>
+    </a>
+    <a href="~/Product" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
+        <i class="bi bi-box-seam fs-5 mb-1"></i>
+        <span style="font-size: 0.75rem; font-weight: 500;">Sản phẩm</span>
+    </a>
+    <a href="~/Cart" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
+        <i class="bi bi-cart fs-5 mb-1"></i>
+        <span style="font-size: 0.75rem; font-weight: 500;">Giỏ hàng</span>
+    </a>
+    @if (userName != null)
+    {
+        <a href="~/Account/Profile" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
+            <i class="bi bi-person fs-5 mb-1"></i>
+            <span style="font-size: 0.75rem; font-weight: 500;">Tài khoản</span>
+        </a>
+    }
+    else
+    {
+        <a href="~/Account/Login" class="text-center text-decoration-none text-dark d-flex flex-column align-items-center">
+            <i class="bi bi-person fs-5 mb-1"></i>
+            <span style="font-size: 0.75rem; font-weight: 500;">Tài khoản</span>
+        </a>
+    }
+</nav>

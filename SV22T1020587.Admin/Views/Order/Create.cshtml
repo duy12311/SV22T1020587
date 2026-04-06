@@ -1,0 +1,291 @@
+﻿@using SV22T1020587.Models.Order
+@model List<CartItem>
+@{
+    ViewBag.Title = "Lập đơn hàng";
+    var cart = Model ?? new List<CartItem>();
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card card-outline card-primary h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-search"></i> Lựa chọn hàng cần bán</h5>
+            </div>
+            <div class="card-body">
+                <form id="frmSearchInput" action="~/Order/SearchProduct" method="get" class="mb-3">
+                    <input type="hidden" name="PageSize" value="3" />
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="SearchValue"
+                               placeholder="Nhập tên mặt hàng cần tìm" autofocus />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="searchResult">
+                    @* Dữ liệu được load bằng AJAX *@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card card-outline card-success mb-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-cart"></i> Danh sách mặt hàng đã chọn</h5>
+            </div>
+            <div class="card-body" id="shoppingCart">
+                @await Html.PartialAsync("ShowShoppingCart", cart)
+            </div>
+            <div class="card-footer text-end">
+                <button type="button" id="btnClearCart" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i> Xóa hết giỏ hàng
+                </button>
+            </div>
+        </div>
+
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-person"></i> Thông tin khách hàng & nơi giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <form id="frmOrderInit" method="post" action="~/Order/Init">
+                    @* Loại đơn hàng *@
+                    <div class="row mb-3">
+                        <label class="col-md-3 col-form-label">Loại đơn:</label>
+                        <div class="col-md-9">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="orderType" id="orderTypeInStore" value="instore" checked />
+                                <label class="form-check-label" for="orderTypeInStore">Tại quầy</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="orderType" id="orderTypeDelivery" value="delivery" />
+                                <label class="form-check-label" for="orderTypeDelivery">Giao hàng</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Thông tin khách hàng *@
+                    <div class="row mb-3">
+                        <label class="col-md-3 col-form-label">Khách hàng:</label>
+                        <div class="col-md-9">
+                            <select class="form-select mb-2" id="selCustomer" name="customerID">
+                                <option value="0">-- Chọn khách hàng --</option>
+                                @if (ViewBag.Customers != null)
+                                {
+                                    foreach (var c in ViewBag.Customers)
+                                    {
+                                        <option value="@c.CustomerID"
+                                                data-name="@c.CustomerName"
+                                                data-phone="@c.Phone"
+                                                data-province="@c.Province"
+                                                data-address="@c.Address">
+                                            @c.CustomerName
+                                        </option>
+                                    }
+                                }
+                            </select>
+
+                            <input type="text" id="customerName" name="customerName"
+                                   class="form-control mb-2" placeholder="Tên khách hàng (để trống là Khách lẻ)" />
+
+                            <input type="text" id="customerPhone" name="customerPhone"
+                                   class="form-control mb-2" placeholder="SĐT (có thể để trống nếu tại quầy)" />
+                        </div>
+                    </div>
+
+                    @* Khối thông tin giao hàng *@
+                    <div id="deliveryBlock">
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Tỉnh/thành giao:</label>
+                            <div class="col-md-9">
+                                <select class="form-select select2" name="deliveryProvince">
+                                    <option value="">-- Chọn Tỉnh/thành --</option>
+                                    @if (ViewBag.Provinces != null)
+                                    {
+                                        foreach (var p in ViewBag.Provinces)
+                                        {
+                                            <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Địa chỉ nhận hàng:</label>
+                            <div class="col-md-9">
+                                <textarea class="form-control" name="deliveryAddress" rows="2"
+                                          placeholder="Số nhà, tên đường..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" id="btnSubmitOrder" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> XÁC NHẬN LẬP ĐƠN HÀNG
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editCartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <form id="frmEditCart">
+                <div class="modal-header">
+                    <h6 class="modal-title">Sửa số lượng</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit_productID" name="productID" />
+                    <div class="mb-2">
+                        <label class="form-label small">Số lượng</label>
+                        <input type="number" id="edit_quantity" name="quantity" class="form-control" min="1" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-sm btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            function doSearch(page) {
+                var searchCondition = $("#frmSearchInput").serializeArray();
+                searchCondition.push({ name: "Page", value: page });
+                $.ajax({
+                    url: $("#frmSearchInput").attr("action"),
+                    type: "GET",
+                    data: searchCondition,
+                    success: function (data) { $("#searchResult").html(data); }
+                });
+            }
+            window.doSearch = doSearch;
+
+            function showShoppingCart() {
+                $.ajax({
+                    url: '/Order/ShowShoppingCart',
+                    type: 'GET',
+                    success: function (data) { $('#shoppingCart').html(data); }
+                });
+            }
+
+            function updateOrderTypeUI() {
+                var type = $('input[name="orderType"]:checked').val();
+                if (type === 'instore') {
+                    $('#deliveryBlock').hide();
+                } else {
+                    $('#deliveryBlock').show();
+                }
+            }
+
+            $(function () {
+                $('#selCustomer').on('change', function () {
+                    var opt = $(this).find(':selected');
+                    $('#customerName').val(opt.data('name') || '');
+                    $('#customerPhone').val(opt.data('phone') || '');
+                    $('select[name="deliveryProvince"]').val(opt.data('province') || '').trigger('change');
+                    $('textarea[name="deliveryAddress"]').val(opt.data('address') || '');
+                });
+
+                $('input[name="orderType"]').on('change', function () {
+                    updateOrderTypeUI();
+                });
+
+                doSearch(1);
+                updateOrderTypeUI();
+
+                $("#frmSearchInput").submit(function (e) { e.preventDefault(); doSearch(1); });
+
+                $(document).on('submit', '.frmAddToCart', function (e) {
+                    e.preventDefault();
+                    var form = $(this);
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function (data) { if (data === "") showShoppingCart(); else alert(data); }
+                    });
+                });
+
+                $(document).on('submit', '#frmOrderInit', function (e) {
+                    e.preventDefault();
+                    var $form = $(this);
+                    var orderType = $('input[name="orderType"]:checked').val();
+                    var name = $('#customerName').val();
+                    var phone = $('#customerPhone').val();
+                    var addr = $('textarea[name="deliveryAddress"]').val();
+
+                    if (orderType === 'instore') {
+                        if (!name || name.trim() === '') {
+                            $('#customerName').val('Khách lẻ');
+                        }
+                    } else {
+                        if (!name || !phone || !addr || name.trim() === '' || phone.trim() === '' || addr.trim() === '') {
+                            alert("Khách giao hàng phải nhập đầy đủ thông tin (Tên, SĐT, Địa chỉ)");
+                            return;
+                        }
+                    }
+
+                    var $btn = $('#btnSubmitOrder');
+                    $btn.prop('disabled', true);
+
+                    $.ajax({
+                        url: $form.attr('action'),
+                        type: 'POST',
+                        data: $form.serialize(),
+                        success: function (resp) {
+                            if (resp.success) {
+                                alert('Lập đơn hàng thành công!');
+                                window.location.href = '/Order/Detail/' + resp.orderID;
+                            } else {
+                                var errorMsg = resp.message || (typeof resp === 'string' ? resp : 'Lỗi khi lập đơn hàng');
+                                alert(errorMsg);
+                            }
+                        },
+                        error: function (xhr) { alert(xhr.responseText || 'Lỗi hệ thống'); },
+                        complete: function () { $btn.prop('disabled', false); }
+                    });
+                });
+
+                $('#btnClearCart').on('click', function () {
+                    if(confirm("Xóa giỏ hàng?")) {
+                         $.get('/Order/ClearCart', function() { showShoppingCart(); });
+                    }
+                });
+
+                window.editCartItem = function (id, qty) {
+                    $('#edit_productID').val(id);
+                    $('#edit_quantity').val(qty);
+                    new bootstrap.Modal('#editCartModal').show();
+                };
+
+                $('#frmEditCart').submit(function(e) {
+                    e.preventDefault();
+                    $.post('/Order/UpdateCart', $(this).serialize(), function(data) {
+                        if(data === "") {
+                            bootstrap.Modal.getInstance('#editCartModal').hide();
+                            showShoppingCart();
+                        } else alert(data);
+                    });
+                });
+            });
+
+            window.showShoppingCart = showShoppingCart;
+            window.removeFromCart = function(id) {
+                if(confirm("Xóa mặt hàng này?"))
+                    $.get('/Order/RemoveFromCart/' + id, function(data) { if(data==="") showShoppingCart(); });
+            };
+        })();
+    </script>
+}

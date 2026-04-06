@@ -1,0 +1,71 @@
+﻿@model SV22T1020587.Models.Common.PaginationSearchInput
+@{
+    ViewBag.Title = "Quản lý Khách hàng";
+}
+
+@section PageToolBar {
+    <a href="~/Customer/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch" action="@Url.Action("Search", "Customer")" method="post" onsubmit="event.preventDefault(); doSearch(1);">
+            <input type="hidden" name="PageSize" value="@Model.PageSize" />
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" name="SearchValue"
+                       value="@Model.SearchValue"
+                       placeholder="Nhập tên khách hàng, email hoặc điện thoại..." autofocus />
+                <button class="btn btn-info d-flex align-items-center" type="submit">
+                    <i class="bi bi-search me-1"></i> Tìm kiếm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="searchResult">
+</div>
+
+@section Scripts {
+    <script>
+        function doSearch(page) {
+            var searchCondition = $("#formSearch").serializeArray();
+            searchCondition.push({ name: "Page", value: page });
+
+            var action = $("#formSearch").prop("action");
+            var method = $("#formSearch").prop("method");
+
+            $.ajax({
+                url: action,
+                type: method,
+                data: searchCondition,
+                success: function (data) {
+                    // Đổ dữ liệu HTML lấy được vào div #searchResult
+                    $("#searchResult").html(data);
+                },
+                error: function (xhr, error, status) {
+                    // Báo lỗi ra console nếu server có vấn đề
+                    console.error("Lỗi AJAX: ", error, status);
+                    alert("Có lỗi xảy ra khi tải dữ liệu. Vui lòng nhấn F12 kiểm tra tab Network.");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // Tự động load trang cũ từ Session khi mở lại
+            doSearch(@Model.Page);
+
+            // Bắt sự kiện khi người dùng gõ hoặc xóa chữ trong ô input
+            $("#searchInput").on("input", function () {
+                var keyword = $(this).val().trim();
+
+                // Nếu ô tìm kiếm rỗng (đã bị xóa hết chữ), tự động gọi hàm tìm kiếm lại để hiển thị tất cả
+                if (keyword === "") {
+                    doSearch(1);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "_Layout"; // Hoặc Layout = null nếu bạn muốn trang trắng
+    ViewBag.Title = "Từ chối truy cập";
+}
+
+<div class="container-fluid mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <h2 class="headline text-danger"> <i class="bi bi-shield-lock-fill"></i> 403</h2>
+                <div class="error-content">
+                    <h3><i class="fas fa-exclamation-triangle text-danger"></i> Truy cập bị từ chối!</h3>
+                    <p>
+                        Bạn không có quyền truy cập vào chức năng này.
+                        Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là một sự nhầm lẫn.
+                    </p>
+                    <div class="mt-4">
+                        <a href="~/" class="btn btn-primary">
+                            <i class="bi bi-house-door"></i> Quay lại trang chủ
+                        </a>
+                        <a href="~/Account/Logout" class="btn btn-outline-secondary">
+                            <i class="bi bi-box-arrow-right"></i> Đăng nhập tài khoản khác
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

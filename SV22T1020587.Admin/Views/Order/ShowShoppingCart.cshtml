@@ -1,0 +1,72 @@
+﻿@model IEnumerable<SV22T1020587.Models.Sales.CartItem>
+@{
+    Layout = null;
+}
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover mb-0">
+        <thead>
+            <tr class="bg-primary text-white">
+                <th class="text-center">Tên hàng</th>
+                <th class="text-center" style="width:100px">Số lượng</th>
+                <th class="text-center" style="width:150px">Giá</th>
+                <th class="text-center" style="width:150px">Thành tiền</th>
+                <th style="width:100px" class="text-center">Chức năng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                decimal totalOrder = 0;
+                foreach (var item in Model)
+                {
+                    totalOrder += item.TotalPrice;
+                    <tr data-product="@item.ProductID">
+                        <td class="align-middle">@item.ProductName</td>
+                        <td class="text-center align-middle">
+                            @* Ô nhập số lượng nhanh *@
+                            <input type="number" class="form-control form-control-sm text-center"
+                                   value="@item.Quantity" min="1"
+                                   onchange="updateCart(@item.ProductID, this.value)" />
+                        </td>
+                        <td class="text-right align-middle">@item.SalePrice.ToString("N0")</td>
+                        <td class="text-right align-middle font-weight-bold">@item.TotalPrice.ToString("N0")</td>
+
+                        <td class="text-center align-middle">
+                            <div class="btn-group">
+                                @* Nút sửa *@
+                                <button type="button" class="btn btn-sm btn-warning"
+                                        onclick="editCartItem(@item.ProductID, @item.Quantity)"
+                                        title="Chỉnh sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+
+                                @* Nút xóa *@
+                                <button type="button" class="btn btn-sm btn-danger"
+                                        onclick="removeFromCart(@item.ProductID)"
+                                        title="Xóa khỏi giỏ">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                <tr class="bg-light">
+                    <th colspan="3" class="text-right align-middle">Tổng cộng:</th>
+                    <th class="text-right text-danger align-middle" style="font-size:1.1rem">@totalOrder.ToString("N0")</th>
+                    <th class="text-center">
+             
+                    </th>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <i class="bi bi-cart-x fs-1 d-block mb-2"></i>
+                        Giỏ hàng của bạn đang trống
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

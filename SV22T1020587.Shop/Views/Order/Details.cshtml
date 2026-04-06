@@ -1,0 +1,82 @@
+﻿@model SV22T1020587.Models.Sales.OrderViewInfo
+@using SV22T1020587.Models.Sales
+@using System.Linq
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Order details passed in ViewBag.Details by controller
+    var details = ViewBag.Details as IEnumerable<OrderDetailViewInfo> ?? Enumerable.Empty<OrderDetailViewInfo>();
+    decimal total = details.Sum(d => d.TotalPrice);
+}
+<div class="mb-3">
+    <a class="btn btn-outline-secondary btn-sm" asp-controller="Order" asp-action="MyOrders">← Trở về</a>
+    <noscript><a href="~/Order/MyOrders" class="btn btn-outline-secondary btn-sm">← Trở về</a></noscript>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Đơn hàng #@Model.OrderID</h5>
+                <p class="mb-1"><strong>Ngày đặt:</strong> @Model.OrderTime.ToString("g")</p>
+                <p class="mb-1"><strong>Khách hàng:</strong> @Model.CustomerName (@Model.CustomerPhone)</p>
+                <p class="mb-1"><strong>Email:</strong> @Model.CustomerEmail</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Giao tới:</strong> @Model.DeliveryAddress</p>
+                <p class="mb-1"><strong>Tỉnh/Thành:</strong> @Model.DeliveryProvince</p>
+                <p class="mb-1"><strong>Trạng thái:</strong> <span class="badge @(Model.Status == 4 ? "bg-success" : Model.Status == 3 ? "bg-info text-dark" : Model.Status == 2 ? "bg-primary" : "bg-secondary")">@Model.StatusDescription</span></p>
+                <p class="mb-0"><strong>Thanh toán:</strong> @Model.PaymentMethod</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Chi tiết mặt hàng</h6>
+    </div>
+    <div class="card-body p-0">
+        @if (!details.Any())
+        {
+            <div class="p-3 text-muted">Không có mặt hàng.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in details)
+                        {
+                            <tr>
+                                <td style="width:80px;">
+                                    <img src="@(string.IsNullOrEmpty(d.Photo) ? "/images/no-image.png" : (d.Photo.StartsWith("http") ? d.Photo : Url.Content($"~/images/products/{d.Photo}")))" alt="@d.ProductName" style="width:64px;height:48px;object-fit:cover;" />
+                                </td>
+                                <td>@d.ProductName</td>
+                                <td class="text-center">@d.Quantity</td>
+                                <td class="text-end">@d.SalePrice.ToString("N0") VND</td>
+                                <td class="text-end">@d.TotalPrice.ToString("N0") VND</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>Tổng</strong></td>
+                            <td class="text-end"><strong>@total.ToString("N0") VND</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>

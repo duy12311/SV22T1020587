@@ -1,0 +1,35 @@
+﻿@model SV22T1020587.Models.Sales.OrderDetailViewInfo
+@{
+    // Tắt layout chung để không bị lặp lại menu, header khi mở trong Popup
+    Layout = null;
+}
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header bg-primary">
+            <h5 class="modal-title">Cập nhật mặt hàng: @Model.ProductName</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="~/Order/UpdateDetail" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="orderID" value="@Model.OrderID" />
+                <input type="hidden" name="productID" value="@Model.ProductID" />
+
+                <div class="mb-3">
+                    <label class="form-label">Số lượng:</label>
+                    <input type="number" class="form-control" name="quantity" value="@Model.Quantity" min="1" required />
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-floppy"></i> Lưu thay đổi
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Hủy bỏ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
