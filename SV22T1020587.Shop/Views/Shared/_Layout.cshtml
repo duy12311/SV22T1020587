@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    var title = ViewBag.Title ?? "Dopamine EnT - Premium Store";
+    var title = ViewBag.Title ?? "DPM ENT.";
 }
 <!doctype html>
 <html lang="vi">
@@ -9,47 +9,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         :root {
-            --primary-color: #2563eb;
-            --bg-body: #f8fafc;
-            --glass-bg: rgba(255, 255, 255, 0.85);
+            --b-black: #000000;
+            --b-white: #ffffff;
+            --b-primary: #FF0055; 
+            --b-secondary: #00FF66; 
+            --b-bg: #F0F0F0;
+            --b-border: 3px solid var(--b-black);
+            --b-shadow: 4px 4px 0px var(--b-black);
+            --b-shadow-hover: 8px 8px 0px var(--b-black);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: #1e293b;
-            padding-top: 80px;
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--b-bg);
+            color: var(--b-black);
+            padding-top: 110px; 
         }
 
-        /* Card & Button Styles */
-        .card {
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        .brutal-border {
+            border: var(--b-border) !important;
+            box-shadow: var(--b-shadow);
+            border-radius: 0 !important;
+            transition: all 0.15s ease-in-out;
         }
 
-        .btn {
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.2s;
+            .brutal-border:hover {
+                transform: translate(-3px, -3px);
+                box-shadow: var(--b-shadow-hover);
+            }
+
+        .brutal-btn {
+            background-color: var(--b-primary);
+            color: var(--b-white);
+            font-weight: 900;
+            text-transform: uppercase;
+            border: var(--b-border);
+            box-shadow: var(--b-shadow);
+            border-radius: 0;
+            transition: 0.1s;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
+            .brutal-btn:hover {
+                background-color: var(--b-black);
+                color: var(--b-secondary);
+                transform: translate(-2px, -2px);
+                box-shadow: 6px 6px 0px var(--b-black);
+            }
+
+        .form-control {
+            border: var(--b-border);
+            border-radius: 0;
+            box-shadow: none !important;
+        }
+
+            .form-control:focus {
+                border-color: var(--b-black);
+                background-color: #fffbdd; 
+            }
+
+        .dropdown-menu {
+            border: var(--b-border);
+            border-radius: 0;
+            box-shadow: var(--b-shadow-hover);
+            padding: 0;
+        }
+
+        .dropdown-item {
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+            transition: 0.2s;
+        }
+
+            .dropdown-item:hover {
+                background-color: var(--b-secondary);
+                color: var(--b-black);
+                padding-left: 20px;
+            }
+
+        @@keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .marquee-container {
+            background: var(--b-black);
+            color: var(--b-secondary);
+            border-bottom: var(--b-border);
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 5px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-navbar {
+            background-color: var(--b-white);
+            border-bottom: var(--b-border);
+            z-index: 1040;
+            top: 36px; 
+        }
+
+        .bottom-nav-brutal {
+            background: var(--b-white);
+            border-top: var(--b-border);
+            z-index: 1020;
+        }
+
+        .bottom-nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: var(--b-black);
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            transition: 0.2s;
+        }
+
+            .bottom-nav-item.active, .bottom-nav-item:hover {
+                background: var(--b-black);
+                color: var(--b-secondary);
+            }
+
+        .badge-animated {
+            transition: all 0.3s ease;
+            display: none;
         }
 
         @@media (max-width: 767px) {
             body {
-                padding-top: 70px;
-                padding-bottom: 80px;
+                padding-top: 100px;
+                padding-bottom: 90px;
             }
         }
     </style>
@@ -58,11 +172,10 @@
 
     @await Html.PartialAsync("_Header")
 
-    <main class="container my-4 flex-grow-1">
+    <main class="container-fluid px-md-5 my-4 flex-grow-1">
         @RenderBody()
     </main>
 
-    @* LOGIC: Chỉ hiện Footer nếu đang ở Controller Home và Action Index *@
     @{
         var controller = ViewContext.RouteData.Values["controller"]?.ToString();
         var action = ViewContext.RouteData.Values["action"]?.ToString();
@@ -75,6 +188,63 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartCountElements = document.querySelectorAll('#cartCount, .cart-badge');
+
+            async function syncCartCount() {
+                try {
+                    const response = await fetch('/Cart/Count', { method: 'GET', cache: 'no-cache' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const displayCount = parseInt(data.count, 10) || 0;
+
+                        cartCountElements.forEach(el => {
+                            el.textContent = displayCount > 99 ? '99+' : displayCount;
+                            el.style.display = displayCount > 0 ? 'inline-block' : 'none';
+                        });
+                    }
+                } catch (err) {
+                    console.error('Lỗi đồng bộ giỏ hàng:', err);
+                }
+            }
+
+            syncCartCount();
+            window.refreshCartBadge = syncCartCount;
+
+            window.addToCart = async function (productID, productName, salePrice, photo, quantity = 1) {
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('ProductID', productID);
+                    formData.append('ProductName', productName);
+                    formData.append('SalePrice', salePrice);
+                    formData.append('Photo', photo);
+                    formData.append('Quantity', quantity);
+
+                    const response = await fetch('/Cart/Add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData.toString()
+                    });
+
+                    if (response.status === 401) {
+                        window.location.href = '/Account/Login?returnUrl=' + encodeURIComponent(window.location.pathname);
+                        return;
+                    }
+
+                    const result = await response.json();
+                    if (result.success) {
+                        window.refreshCartBadge();
+                        console.log(`Đã thêm ${productName} vào giỏ hàng`);
+                    }
+                } catch (err) {
+                    console.error("Lỗi khi thêm sản phẩm:", err);
+                }
+            };
+        });
+    </script>
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

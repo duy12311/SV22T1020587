@@ -1,148 +1,205 @@
 ﻿@using System.Security.Claims
 @model IList<SV22T1020587.Models.Sales.CartItem>
 @{
-    ViewBag.Title = "Giỏ hàng";
+    ViewBag.Title = "Giỏ Hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // If controller provided a CheckoutCustomer in ViewBag, use it to prefill modal fields.
     var checkoutCustomer = ViewBag.CheckoutCustomer;
 }
-<h3>Giỏ hàng</h3>
 
-<div class="mb-3">
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="(history.length>1?history.back():window.location.href='/')">← Trở về</button>
+<div class="container-fluid mb-4 mt-2 p-0">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 border-bottom border-dark border-3 pb-2">
+        <h2 class="fw-black text-uppercase m-0" style="font-size: clamp(1.5rem, 3vw, 2.2rem); letter-spacing: -1px;">
+            <i class="bi bi-cart-fill text-primary"></i> GIỎ HÀNG CỦA BẠN
+        </h2>
+        <button type="button" class="brutal-border border-2 bg-white text-dark px-3 py-1 fw-bold text-decoration-none hover-invert mt-2 mt-md-0 w-auto small" onclick="(history.length>1?history.back():window.location.href='/')">
+            <i class="bi bi-arrow-left me-1"></i> QUAY LẠI
+        </button>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="brutal-border border-3 bg-warning text-dark p-4 text-center" style="box-shadow: 6px 6px 0px #000;">
+            <i class="bi bi-cart-x display-3 mb-2"></i>
+            <h3 class="fw-black text-uppercase mb-2">Giỏ hàng đang trống trơn!</h3>
+            <p class="fs-6 fw-bold mb-3">Ông chủ đang đợi bạn chốt đơn. Hãy ra ngoài kia và gom thêm vài món đồ chiến nhất đi.</p>
+            <a href="~/Product" class="brutal-btn px-4 py-2 fs-6 text-decoration-none d-inline-block">
+                MUA SẮM NGAY <i class="bi bi-arrow-right-circle-fill ms-2"></i>
+            </a>
+        </div>
+    }
+    else
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="table-responsive brutal-border border-3 mb-4 bg-white" style="box-shadow: 4px 4px 0px #000;">
+            <table class="table align-middle table-bordered border-dark m-0" id="cartTable">
+                <thead class="bg-primary text-white text-uppercase fw-black small" style="border-bottom: 3px solid #000;">
+                    <tr>
+                        <th style="width:40px;" class="text-center bg-primary text-white p-2">
+                            <input type="checkbox" id="selectAll" class="form-check-input border-dark border-2 rounded-0 shadow-none" style="width: 16px; height: 16px;" />
+                        </th>
+                        <th style="width:90px;" class="bg-primary text-white p-2">HÌNH ẢNH</th>
+                        <th class="bg-primary text-white p-2">SẢN PHẨM</th>
+                        <th class="text-end bg-primary text-white p-2">ĐƠN GIÁ</th>
+                        <th style="width:120px;" class="text-center bg-primary text-white p-2">SỐ LƯỢNG</th>
+                        <th class="text-end bg-primary text-white p-2">THÀNH TIỀN</th>
+                        <th style="width:50px;" class="text-center bg-primary text-white p-2"></th>
+                    </tr>
+                </thead>
+                <tbody class="fw-bold fs-6">
+                    @foreach (var item in Model)
+                    {
+                        <tr data-row-id="@item.ProductID">
+                            <td class="text-center p-2">
+                                <input type="checkbox" name="selectedProductID" value="@item.ProductID" class="selectItem form-check-input border-dark border-2 rounded-0 shadow-none" style="width: 16px; height: 16px;" />
+                            </td>
+                            <td class="p-2">
+                                <div class="brutal-border border-2 p-1 bg-light d-flex justify-content-center align-items-center">
+                                    <img src="@(string.IsNullOrEmpty(item.Photo) ? "/images/no-image.png" : item.Photo)" alt="@item.ProductName" class="img-fluid" style="width: 70px; height: 50px; object-fit: contain; mix-blend-mode: multiply;">
+                                </div>
+                            </td>
+                            <td class="p-2">
+                                <div class="fw-black text-uppercase" style="font-size: 0.95rem;">@item.ProductName</div>
+                                <div class="bg-dark text-white px-2 py-0 d-inline-block mt-1 brutal-border border-1" style="font-size: 0.75rem;">MÃ: @item.ProductID</div>
+                            </td>
+                            <td class="text-end p-2" data-price="@item.SalePrice">
+                                @String.Format("{0:N0}", item.SalePrice) đ
+                            </td>
+                            <td class="text-center p-2">
+                                <div class="d-flex brutal-border border-2 bg-white" style="width: 100px; margin: auto;">
+                                    <button class="btn btn-light border-0 rounded-0 fw-black px-2 py-1 hover-invert" type="button" onclick="changeQty(this,-1)">-</button>
+                                    <input type="number" value="@item.Quantity" min="1"
+                                           class="form-control form-control-sm border-0 border-start border-end border-dark border-2 rounded-0 text-center fw-black shadow-none input-quantity px-0"
+                                           data-product-id="@item.ProductID" />
+                                    <button class="btn btn-light border-0 rounded-0 fw-black px-2 py-1 hover-invert" type="button" onclick="changeQty(this,1)">+</button>
+                                </div>
+                            </td>
+                            <td class="text-end fw-black item-total-price p-2" style="color: var(--b-primary); text-shadow: 1px 1px 0 #000;">
+                                @String.Format("{0:N0}", item.TotalPrice) đ
+                            </td>
+                            <td class="text-center p-2">
+                                <button type="button" class="btn brutal-border border-2 bg-danger text-white rounded-0 btn-remove p-1 px-2 hover-invert" data-product-id="@item.ProductID" title="Xóa">
+                                    <i class="bi bi-trash3-fill fs-6"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="brutal-border border-3 bg-light p-2 p-md-3 d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3" style="background-image: radial-gradient(#ddd 2px, transparent 2px); background-size: 15px 15px;">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="~/Product" class="brutal-border border-2 bg-white text-dark px-3 py-2 fw-bold text-decoration-none hover-invert text-uppercase text-center small">
+                    <i class="bi bi-arrow-left me-1"></i> MUA THÊM
+                </a>
+                <button type="button" id="btnClearCart" class="brutal-border border-2 bg-dark text-white px-3 py-2 fw-bold hover-invert text-uppercase small">
+                    <i class="bi bi-x-octagon-fill me-1"></i> XÓA TOÀN BỘ
+                </button>
+            </div>
+
+            <div class="d-flex flex-column align-items-xl-end bg-white p-2 brutal-border border-2">
+                <div class="fw-black text-uppercase d-flex align-items-center gap-2" style="font-size: 1.1rem;">
+                    <span>TỔNG TIỀN:</span>
+                    <span id="cart-total" class="text-primary fs-4" style="text-shadow: 1px 1px 0 #000;">
+                        @String.Format("{0:N0}", Model.Sum(i => i.TotalPrice)) đ
+                    </span>
+                </div>
+                <button type="button" id="btnProceedCheckout" class="brutal-btn py-2 px-4 mt-2 w-100 text-uppercase fw-black" style="font-size: 0.95rem;">
+                    CHỐT ĐƠN NGAY <i class="bi bi-lightning-charge-fill ms-1"></i>
+                </button>
+            </div>
+        </div>
+    }
 </div>
 
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">Giỏ hàng trống.</div>
-}
-else
-{
-    // Cần giữ lại Token để Fetch API dùng cho bảo mật
-    @Html.AntiForgeryToken()
-
-    <div class="table-responsive">
-        <table class="table align-middle bg-white shadow-sm" id="cartTable">
-            <thead>
-                <tr>
-                    <th style="width:32px;" class="text-center"><input type="checkbox" id="selectAll" /></th>
-                    <th style="width:110px;">Hình ảnh</th>
-                    <th>Sản phẩm</th>
-                    <th class="text-end">Đơn giá</th>
-                    <th style="width:150px;" class="text-center">Số lượng</th>
-                    <th class="text-end">Thành tiền</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr data-row-id="@item.ProductID">
-                        <td class="text-center">
-                            <input type="checkbox" name="selectedProductID" value="@item.ProductID" class="selectItem" />
-                        </td>
-                        <td>
-                            <img src="@(string.IsNullOrEmpty(item.Photo) ? "/images/no-image.png" : item.Photo)" alt="@item.ProductName" class="img-fluid" style="max-width:96px;height:64px;object-fit:cover;">
-                        </td>
-                        <td>
-                            <div class="fw-semibold">@item.ProductName</div>
-                            <small class="text-muted">Mã: @item.ProductID</small>
-                        </td>
-                        <td class="text-end" data-price="@item.SalePrice">@String.Format("{0:N0}", item.SalePrice) VND</td>
-                        <td class="text-center">
-                            <div class="input-group input-group-sm" style="width:120px;margin:auto;">
-                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(this,-1)">-</button>
-
-                                <input type="number" value="@item.Quantity" min="1"
-                                       class="form-control text-center input-quantity"
-                                       data-product-id="@item.ProductID" />
-
-                                <button class="btn btn-outline-secondary" type="button" onclick="changeQty(this,1)">+</button>
-                            </div>
-                        </td>
-                        <td class="text-end item-total-price">@String.Format("{0:N0}", item.TotalPrice) VND</td>
-                        <td class="text-end">
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-remove" data-product-id="@item.ProductID" title="Xóa">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <div>
-            <a href="~/Product" class="btn btn-outline-secondary btn-rounded"><i class="fa-solid fa-arrow-left me-1"></i> Tiếp tục mua sắm</a>
-            <button type="button" id="btnClearCart" class="btn btn-outline-danger btn-rounded ms-2">Xóa giỏ hàng</button>
-        </div>
-        <div class="text-end">
-            <div class="mb-2">Tổng tiền: <span id="cart-total" class="fs-5 fw-bold text-danger">@String.Format("{0:N0}", Model.Sum(i => i.TotalPrice)) VND</span></div>
-
-            @* Open checkout modal from cart, avoids nested forms and keeps UX in-cart *@
-            <button type="button" id="btnProceedCheckout" class="btn btn-success btn-rounded btn-lg">Tiến hành đặt hàng</button>
-        </div>
-    </div>
-}
-
-@* Checkout modal: collects customer info and posts to Order/Init *@
 <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content brutal-border border-3 rounded-0" style="box-shadow: 6px 6px 0px #000;">
             <form id="frmCheckoutModal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Thanh toán — Thông tin giao hàng</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                <div class="modal-header bg-primary border-bottom border-dark border-3 rounded-0 py-2">
+                    <h5 class="modal-title fw-black text-uppercase text-white mb-0" style="text-shadow: 1px 1px 0 #000;">
+                        THÔNG TIN GIAO HÀNG
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-3 bg-light">
                     @Html.AntiForgeryToken()
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label small">Họ và tên</label>
-                            <input type="text" name="CustomerName" class="form-control" required value="@(checkoutCustomer?.CustomerName ?? User.Identity?.Name ?? String.Empty)" />
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Họ và tên</label>
+                            <input type="text" name="CustomerName" class="form-control form-control-sm brutal-input" required value="@(checkoutCustomer?.CustomerName ?? User.Identity?.Name ?? String.Empty)" placeholder="VD: NGUYỄN VĂN A" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small">Số điện thoại</label>
-                            <input type="tel" name="Phone" class="form-control" required value="@(checkoutCustomer?.Phone ?? String.Empty)" />
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Số điện thoại</label>
+                            <input type="tel" name="Phone" class="form-control form-control-sm brutal-input" required value="@(checkoutCustomer?.Phone ?? String.Empty)" placeholder="0909..." />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small">Tỉnh/Thành phố</label>
-                            <input type="text" name="DeliveryProvince" class="form-control" required value="@(checkoutCustomer?.Province ?? String.Empty)" />
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Tỉnh / Thành phố</label>
+                            <input type="text" name="DeliveryProvince" class="form-control form-control-sm brutal-input" required value="@(checkoutCustomer?.Province ?? String.Empty)" placeholder="VD: Hà Nội" />
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small">Địa chỉ chi tiết</label>
-                            <input type="text" name="DeliveryAddress" class="form-control" required value="@(checkoutCustomer?.Address ?? String.Empty)" />
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Địa chỉ chi tiết</label>
+                            <input type="text" name="DeliveryAddress" class="form-control form-control-sm brutal-input" required value="@(checkoutCustomer?.Address ?? String.Empty)" placeholder="Số nhà, Tên đường..." />
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small">Phương thức thanh toán</label>
-                            <select name="PaymentMethod" class="form-select" required>
-                                <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-                                <option value="bank_transfer">Chuyển khoản</option>
-                                <option value="card">Thẻ tín dụng / ghi nợ</option>
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Phương thức thanh toán</label>
+                            <select name="PaymentMethod" class="form-select form-select-sm brutal-input fw-bold" required>
+                                <option value="cod">Tiền mặt khi nhận hàng (COD)</option>
+                                <option value="bank_transfer">Chuyển khoản ngân hàng</option>
+                                <option value="card">Thẻ Tín dụng / Ghi nợ</option>
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small">Ghi chú</label>
-                            <textarea name="Note" class="form-control" rows="2"></textarea>
+                            <label class="form-label fw-bold text-uppercase small mb-1" style="font-size: 0.8rem;">Ghi chú (Nếu có)</label>
+                            <textarea name="Note" class="form-control form-control-sm brutal-input" rows="2" placeholder="Giao giờ hành chính..."></textarea>
                         </div>
                     </div>
 
-                    <div id="checkoutAlert" class="alert alert-danger mt-3 d-none" role="alert"></div>
+                    <div id="checkoutAlert" class="alert mt-3 mb-0 brutal-border border-2 bg-danger text-white fw-bold d-none small py-2" role="alert"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary">Xác nhận đặt hàng</button>
+                <div class="modal-footer border-top border-dark border-3 bg-white p-2 rounded-0">
+                    <button type="button" class="brutal-border border-2 bg-white text-dark px-3 py-1 fw-bold text-uppercase hover-invert small" data-bs-dismiss="modal">HỦY</button>
+                    <button type="submit" class="brutal-btn px-4 py-1 fw-black text-uppercase small">XÁC NHẬN ĐẶT HÀNG</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<style>
+    .brutal-input {
+        border: 2px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: 2px 2px 0px rgba(0,0,0,0.1) !important;
+        font-weight: bold;
+        transition: all 0.2s ease;
+    }
+
+        .brutal-input:focus {
+            outline: none !important;
+            box-shadow: 3px 3px 0px var(--b-secondary) !important;
+            border-color: #000 !important;
+        }
+
+    .table-bordered > :not(caption) > * > * {
+        border-width: 2px 2px;
+        border-color: #000;
+    }
+
+    .hover-invert {
+        transition: all 0.1s;
+    }
+
+        .hover-invert:hover {
+            background-color: var(--b-black) !important;
+            color: var(--b-secondary) !important;
+        }
+</style>
+
 @section Scripts {
     <script>
-        // Hàm tính toán và cập nhật lại giao diện ngay lập tức
         function recalculateCartUI() {
             let totalCart = 0;
             document.querySelectorAll('#cartTable tbody tr').forEach(row => {
@@ -153,31 +210,25 @@ else
                 const priceCell = row.querySelector('[data-price]');
                 const price = parseFloat(priceCell.getAttribute('data-price')) || 0;
 
-                // Cập nhật thành tiền từng dòng
                 const rowTotal = qty * price;
-                row.querySelector('.item-total-price').textContent = new Intl.NumberFormat('vi-VN').format(rowTotal) + " VND";
+                row.querySelector('.item-total-price').textContent = new Intl.NumberFormat('vi-VN').format(rowTotal) + " đ";
 
-                // Cộng dồn vào tổng
                 totalCart += rowTotal;
             });
 
-            // Cập nhật tổng tiền toàn giỏ hàng
             const totalEl = document.getElementById('cart-total');
-            if (totalEl) totalEl.textContent = new Intl.NumberFormat('vi-VN').format(totalCart) + " VND";
+            if (totalEl) totalEl.textContent = new Intl.NumberFormat('vi-VN').format(totalCart) + " đ";
         }
 
-        // Tăng giảm số lượng bằng nút +/-
         function changeQty(btn, delta) {
             var input = btn.parentElement.querySelector('input[type="number"]');
             var v = parseInt(input.value || '1', 10) + delta;
-            if (v < 1) return; // Nếu < 1 thì không làm gì (xóa dùng nút riêng)
+            if (v < 1) return; 
             input.value = v;
 
-            // Kích hoạt sự kiện change để gọi Ajax bên dưới
             input.dispatchEvent(new Event('change'));
         }
 
-        // BẮT SỰ KIỆN CẬP NHẬT SỐ LƯỢNG (AJAX)
         document.querySelectorAll('.input-quantity').forEach(input => {
             input.addEventListener('change', async function() {
                 const productId = this.dataset.productId;
@@ -188,7 +239,6 @@ else
                     return;
                 }
 
-                // Cập nhật giao diện tạm thời trước để có cảm giác mượt
                 recalculateCartUI();
 
                 try {
@@ -200,7 +250,7 @@ else
                     const result = await response.json();
 
                     if (result.success && typeof window.refreshCartBadge === 'function') {
-                        window.refreshCartBadge(); // Hàm này nằm trong file app.js (hoặc script layout) bạn khai báo ban đầu
+                        window.refreshCartBadge();
                     }
                 } catch (err) {
                     console.error("Lỗi cập nhật:", err);
@@ -209,13 +259,12 @@ else
             });
         });
 
-        // BẮT SỰ KIỆN XÓA 1 SẢN PHẨM (AJAX)
         document.querySelectorAll('.btn-remove').forEach(btn => {
             btn.addEventListener('click', async function(e) {
                 e.preventDefault();
                 const productId = this.dataset.productId;
 
-                if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) return;
+                if (!confirm("Xóa mặt hàng này khỏi giỏ?")) return;
 
                 try {
                     const response = await fetch('/Cart/Remove', {
@@ -226,17 +275,13 @@ else
                     const result = await response.json();
 
                     if (result.success) {
-                        // Xóa dòng HTML tương ứng
                         const row = document.querySelector(`tr[data-row-id="${productId}"]`);
                         if (row) row.remove();
 
-                        // Tính lại tổng tiền
                         recalculateCartUI();
 
-                        // Update badge
                         if (typeof window.refreshCartBadge === 'function') window.refreshCartBadge();
 
-                        // Nếu hết sản phẩm trong bảng, reload lại trang để hiện "Giỏ hàng trống"
                         if (document.querySelectorAll('#cartTable tbody tr').length === 0) {
                             window.location.reload();
                         }
@@ -247,15 +292,13 @@ else
             });
         });
 
-        // ================= GIỮ NGUYÊN CÁC SỰ KIỆN CŨ CỦA BẠN =================
-
         document.getElementById('selectAll')?.addEventListener('change', function(e){
             var checked = e.target.checked;
             document.querySelectorAll('.selectItem').forEach(function(cb){ cb.checked = checked; });
         });
 
         document.getElementById('btnClearCart')?.addEventListener('click', function(){
-            if (!confirm('Xóa toàn bộ giỏ hàng?')) return;
+            if (!confirm('Xóa toàn bộ giỏ hàng? Đừng hối hận đấy!')) return;
             fetch('/Cart/Clear', { method: 'POST', credentials: 'same-origin', headers: {'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value } })
             .then(()=> window.location.reload());
         });

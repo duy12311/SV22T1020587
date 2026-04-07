@@ -5,75 +5,146 @@
     var provinces = ViewBag.Provinces as IEnumerable<Province> ?? Enumerable.Empty<Province>();
 }
 
-<div class="container mt-5">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Đăng ký tài khoản mới</h4>
+        <div class="col-lg-8">
+            <div class="brutal-box bg-white overflow-hidden">
+                <div class="bg-primary p-3 border-bottom border-dark border-2 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="fw-black text-white m-0 text-uppercase">GIA NHẬP CỘNG ĐỒNG</h4>
+                        <small class="text-white-50 fw-bold">Trở thành thành viên chỉ trong vài bước</small>
+                    </div>
+                    <i class="fa-solid fa-user-plus text-warning fs-2"></i>
                 </div>
-                <div class="card-body">
-                    <div asp-validation-summary="All" class="text-danger"></div>
 
-                    <form asp-action="Register" asp-controller="Account" method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Tên khách hàng</label>
-                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ và tên..." required />
+                <div class="p-4">
+                    <div asp-validation-summary="All" class="brutal-alert bg-danger text-white mb-4 small list-unstyled"></div>
+
+                    <form asp-action="Register" asp-controller="Account" method="post" class="row g-3">
+                        <div class="col-md-6">
+                            <h6 class="fw-black text-uppercase border-bottom border-dark border-2 pb-1 mb-3">Thông tin cá nhân</h6>
+
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Họ và tên</label>
+                                <input asp-for="CustomerName" class="form-control brutal-input" placeholder="Nguyễn Văn A" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Tên giao dịch</label>
+                                <input asp-for="ContactName" class="form-control brutal-input" placeholder="Tên thường gọi" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Điện thoại</label>
+                                <input asp-for="Phone" class="form-control brutal-input" placeholder="090xxxxxxxx" />
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Tên giao dịch</label>
-                            <input asp-for="ContactName" class="form-control" placeholder="Tên thường gọi..." required />
-                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-black text-uppercase border-bottom border-dark border-2 pb-1 mb-3">Tài khoản & Địa chỉ</h6>
 
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="VD: email@example.com" required />
-                        </div>
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Email (Tên đăng nhập)</label>
+                                <input asp-for="Email" type="email" class="form-control brutal-input" placeholder="email@example.com" required />
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required minlength="6" />
-                        </div>
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Mật khẩu mới</label>
+                                <input type="password" name="password" class="form-control brutal-input" placeholder="Tối thiểu 6 ký tự" required minlength="6" />
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Điện thoại</label>
-                            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại..." />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Địa chỉ</label>
-                            <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ của bạn..." />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Tỉnh/Thành phố</label>
-                            <select asp-for="Province" name="Province" class="form-select">
-                                <option value="">-- Chọn tỉnh/thành --</option>
-                                @foreach (var p in provinces)
-                                {
-                                    var isSelected = string.Equals((p.ProvinceName ?? "").Trim(), (Model?.Province ?? "").Trim(), System.StringComparison.OrdinalIgnoreCase);
-                                    if (isSelected)
-                                    {
-                                        <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
-                                    }
-                                    else
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase small">Tỉnh/Thành</label>
+                                <select asp-for="Province" name="Province" class="form-select brutal-input shadow-none">
+                                    <option value="">-- Chọn khu vực --</option>
+                                    @foreach (var p in provinces)
                                     {
                                         <option value="@p.ProvinceName">@p.ProvinceName</option>
                                     }
-                                }
-                            </select>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-block">Đăng ký ngay</button>
+                        <div class="col-12 mb-3">
+                            <label class="fw-black text-uppercase small">Địa chỉ chi tiết</label>
+                            <input asp-for="Address" class="form-control brutal-input" placeholder="Số nhà, tên đường..." />
+                        </div>
+
+                        <div class="col-12 pt-3">
+                            <button type="submit" class="brutal-btn bg-warning text-dark w-100 py-3 fw-black text-uppercase fs-5">
+                                ĐĂNG KÝ TÀI KHOẢN NGAY <i class="fa-solid fa-rocket ms-2"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer text-center">
-                    Đã có tài khoản? <a asp-action="Login" asp-controller="Account">Đăng nhập tại đây</a>
+
+                <div class="bg-light p-3 border-top border-dark border-2 text-center">
+                    <span class="fw-bold">Đã có tài khoản?</span>
+                    <a asp-action="Login" asp-controller="Account" class="text-primary fw-black text-decoration-none ms-2 text-uppercase small">Đăng nhập tại đây</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .fw-black {
+        font-weight: 900 !important;
+    }
+
+    .brutal-box {
+        border: 3px solid #000;
+        box-shadow: 10px 10px 0px #000;
+        border-radius: 0;
+    }
+
+    .brutal-input {
+        border: 2px solid #000;
+        border-radius: 0;
+        padding: 8px 12px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+        .brutal-input:focus {
+            box-shadow: 4px 4px 0px #000;
+            border-color: #000;
+            outline: none;
+            background-color: #fff !important;
+        }
+
+    .brutal-btn {
+        border: 2px solid #000;
+        box-shadow: 5px 5px 0px #000;
+        border-radius: 0;
+        transition: all 0.1s;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+        .brutal-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+            background-color: #000 !important;
+            color: #ffdd00 !important;
+        }
+
+        .brutal-btn:active {
+            transform: translate(5px, 5px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+    .brutal-alert {
+        border: 2px solid #000;
+        padding: 12px;
+        font-weight: 700;
+        box-shadow: 4px 4px 0px #000;
+    }
+
+    select.brutal-input {
+        cursor: pointer;
+    }
+</style>

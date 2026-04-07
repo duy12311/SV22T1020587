@@ -1,73 +1,59 @@
-﻿<style>
-    .footer-link {
-        transition: 0.2s;
-        font-size: 0.9rem;
-        color: #64748b !important;
-        text-decoration: none;
-    }
-
-        .footer-link:hover {
-            color: var(--primary-color) !important;
-            padding-left: 5px;
-        }
-
-    .social-circle {
-        width: 35px;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f1f5f9;
-        border-radius: 50%;
-        color: #475569;
-        transition: 0.3s;
-    }
-
-        .social-circle:hover {
-            background: var(--primary-color);
-            color: #fff;
-            transform: translateY(-3px);
-        }
-</style>
-
-<footer class="bg-white pt-5 pb-4 mt-auto border-top">
-    <div class="container">
-        <div class="row gy-4">
-            <div class="col-lg-4 col-md-12">
-                <div class="text-primary fs-3 fw-bold mb-3"><i class="bi bi-lightning-charge-fill"></i> Dopamine EnT</div>
-                <p class="text-muted small pe-lg-5">Hệ thống cung cấp thiết bị công nghệ hàng đầu. Uy tín - Tận tâm - Thần tốc.</p>
-                <div class="d-flex gap-2 mt-3">
-                    <a href="#" class="social-circle"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="social-circle"><i class="bi bi-tiktok"></i></a>
-                    <a href="#" class="social-circle"><i class="bi bi-youtube"></i></a>
+﻿<footer class="bg-black text-white pt-5 pb-4 mt-auto border-top border-5 border-primary">
+    <div class="container-fluid px-md-5">
+        <div class="row gy-5">
+            <div class="col-lg-5 col-md-12">
+                <div class="fs-1 fw-black mb-3" style="font-weight: 900; letter-spacing: -2px;">
+                    DPM<span class="text-primary">ENT.</span>
+                </div>
+                <p class="fw-bold" style="color: var(--b-secondary); font-size: 1.1rem;">WE DON'T SELL PRODUCTS. WE SELL ATTITUDE.</p>
+                <p class="small text-light opacity-75 pe-lg-5">Hệ thống cung cấp thiết bị công nghệ hàng đầu. Phá vỡ mọi quy chuẩn thiết kế nhàm chán.</p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="#" class="brutal-border bg-white text-dark d-flex align-items-center justify-content-center text-decoration-none" style="width: 40px; height: 40px;"><i class="bi bi-facebook fs-5"></i></a>
+                    <a href="#" class="brutal-border bg-white text-dark d-flex align-items-center justify-content-center text-decoration-none" style="width: 40px; height: 40px;"><i class="bi bi-tiktok fs-5"></i></a>
+                    <a href="#" class="brutal-border bg-primary text-white d-flex align-items-center justify-content-center text-decoration-none" style="width: 40px; height: 40px;"><i class="bi bi-youtube fs-5"></i></a>
                 </div>
             </div>
-            <div class="col-6 col-lg-2 ms-auto">
-                <h6 class="fw-bold mb-3">Sản phẩm</h6>
+            <div class="col-6 col-lg-2">
+                <h5 class="fw-black mb-4 border-bottom border-secondary d-inline-block pb-1" style="font-weight: 900;">SẢN PHẨM</h5>
                 <ul class="list-unstyled">
-                    <li><a href="~/Product" class="footer-link">Tất cả hàng</a></li>
-                    <li><a href="#" class="footer-link">Giảm giá</a></li>
+                    <li class="mb-2"><a href="~/Product" class="text-white text-decoration-none fw-bold hover-neon">TẤT CẢ</a></li>
+                    <li class="mb-2"><a href="#" class="text-white text-decoration-none fw-bold hover-neon">HÀNG ĐỘC</a></li>
+                    <li class="mb-2"><a href="#" class="text-primary text-decoration-none fw-bold hover-neon">SALE OFF</a></li>
                 </ul>
             </div>
             <div class="col-6 col-lg-2">
-                <h6 class="fw-bold mb-3">Hỗ trợ</h6>
+                <h5 class="fw-black mb-4 border-bottom border-secondary d-inline-block pb-1" style="font-weight: 900;">HỖ TRỢ</h5>
                 <ul class="list-unstyled">
-                    <li><a href="#" class="footer-link">Bảo hành</a></li>
-                    <li><a href="#" class="footer-link">Giao nhận</a></li>
+                    <li class="mb-2"><a href="#" class="text-white text-decoration-none fw-bold hover-neon">BẢO HÀNH</a></li>
+                    <li class="mb-2"><a href="#" class="text-white text-decoration-none fw-bold hover-neon">GIAO NHẬN</a></li>
+                    <li class="mb-2"><a href="#" class="text-white text-decoration-none fw-bold hover-neon">FAQ</a></li>
                 </ul>
             </div>
             <div class="col-lg-3 col-md-12">
-                <h6 class="fw-bold mb-3">Đăng ký bản tin</h6>
-                <div class="input-group">
-                    <input type="text" class="form-control form-control-sm bg-light border-0" placeholder="Email...">
-                    <button class="btn btn-primary btn-sm">Gửi</button>
+                <h5 class="fw-black mb-4 border-bottom border-secondary d-inline-block pb-1" style="font-weight: 900;">BẢN TIN</h5>
+                <p class="small text-light">Nhận thông báo khi có hàng hiếm.</p>
+                <div class="d-flex brutal-border">
+                    <input type="text" class="form-control border-0 rounded-0" placeholder="EMAIL CỦA BẠN...">
+                    <button class="btn btn-primary rounded-0 fw-bold border-start border-dark border-3">GỬI</button>
                 </div>
             </div>
         </div>
-        <hr class="my-4 opacity-10">
-        <div class="d-flex justify-content-between align-items-center small text-muted">
-            <span>&copy; 2026 Dopamine EnT Store</span>
-            <img src="https://img.vietqr.io/image/pay-logo.png" height="20" style="filter: grayscale(1); opacity: 0.5;">
+
+        <div class="mt-5 pt-4 border-top border-dark d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <span class="fw-bold mb-3 mb-md-0" style="font-size: 0.9rem;">&copy; 2026 DPM ENT. ALL RIGHTS RESERVED.</span>
+            <img src="https://img.vietqr.io/image/pay-logo.png" height="25" style="filter: grayscale(1) contrast(2);">
         </div>
     </div>
 </footer>
+
+<style>
+    .hover-neon {
+        transition: 0.2s;
+    }
+
+        .hover-neon:hover {
+            color: var(--b-secondary) !important;
+            padding-left: 8px;
+            text-shadow: 2px 2px 0 #000;
+        }
+</style>

@@ -3,21 +3,77 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5 mb-5 text-center">
-    <div class="mb-4">
-        <i class="fa-solid fa-circle-check text-success" style="font-size: 80px;"></i>
-    </div>
+<div class="container mt-5 mb-5 d-flex justify-content-center">
+    <div class="brutal-box bg-white p-4 p-md-5 text-center" style="max-width: 550px; width: 100%; position: relative;">
 
-    <h2 class="text-success fw-bold">Đặt hàng thành công!</h2>
-    <p class="lead mt-3">Cảm ơn bạn đã tin tưởng và mua sắm tại cửa hàng của chúng tôi.</p>
-    <p class="text-muted">Đơn hàng của bạn đã được ghi nhận vào hệ thống và đang trong quá trình chờ xử lý. Chúng tôi sẽ sớm liên hệ với bạn.</p>
+        <div class="mb-4">
+            <div class="d-inline-block bg-success text-white border border-dark border-2 p-3 brutal-icon" style="box-shadow: 4px 4px 0px #000;">
+                <i class="fa-solid fa-check" style="font-size: 50px;"></i>
+            </div>
+        </div>
 
-    <div class="mt-5">
-        <a href="~/" class="btn btn-primary btn-lg rounded-pill px-4 me-2">
-            <i class="fa-solid fa-house me-1"></i> Về trang chủ
-        </a>
-        <a href="~/Product" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
-            Tiếp tục mua sắm <i class="fa-solid fa-arrow-right ms-1"></i>
-        </a>
+        <h2 class="fw-black text-uppercase m-0 mb-3" style="letter-spacing: -1px; text-shadow: 2px 2px 0 #ffdd00, 3px 3px 0 #000; line-height: 1.2;">
+            ĐẶT HÀNG THÀNH CÔNG!
+        </h2>
+
+        <p class="fw-bold mb-3 fs-5">
+            Cảm ơn bạn đã tin tưởng chốt đơn!
+        </p>
+
+        <div class="border border-dark border-2 bg-light p-3 mb-4 text-start" style="background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 10px 10px;">
+            <p class="m-0 fw-bold small text-dark" style="line-height: 1.6;">
+                <i class="fa-solid fa-bell me-2 text-primary"></i> Đơn hàng của bạn đã được ghi nhận vào hệ thống và đang chờ xử lý. Chúng tôi sẽ sớm liên hệ để giao hàng cho bạn.
+            </p>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4">
+            <a href="~/" class="brutal-btn bg-white text-dark py-2 px-3 fw-black">
+                <i class="fa-solid fa-house me-1"></i> VỀ TRANG CHỦ
+            </a>
+            <a href="~/Product" class="brutal-btn bg-primary text-white py-2 px-3 fw-black">
+                MUA TIẾP ĐI <i class="fa-solid fa-cart-shopping ms-1"></i>
+            </a>
+        </div>
     </div>
 </div>
+
+<style>
+    .brutal-box {
+        border: 2px solid #000;
+        box-shadow: 6px 6px 0px #000;
+        border-radius: 0;
+    }
+
+    .brutal-icon {
+        transform: rotate(-5deg);
+        transition: transform 0.2s;
+    }
+
+    .brutal-box:hover .brutal-icon {
+        transform: rotate(5deg) scale(1.1);
+    }
+
+    .brutal-btn {
+        display: inline-block;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.15s ease-in-out;
+        border-radius: 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+        .brutal-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+            background-color: #000 !important;
+            color: #ffdd00 !important;
+        }
+
+        .brutal-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #000;
+        }
+</style>

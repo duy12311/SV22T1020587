@@ -5,78 +5,169 @@
     ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    // Order details passed in ViewBag.Details by controller
     var details = ViewBag.Details as IEnumerable<OrderDetailViewInfo> ?? Enumerable.Empty<OrderDetailViewInfo>();
     decimal total = details.Sum(d => d.TotalPrice);
-}
-<div class="mb-3">
-    <a class="btn btn-outline-secondary btn-sm" asp-controller="Order" asp-action="MyOrders">← Trở về</a>
-    <noscript><a href="~/Order/MyOrders" class="btn btn-outline-secondary btn-sm">← Trở về</a></noscript>
-</div>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h5>Đơn hàng #@Model.OrderID</h5>
-                <p class="mb-1"><strong>Ngày đặt:</strong> @Model.OrderTime.ToString("g")</p>
-                <p class="mb-1"><strong>Khách hàng:</strong> @Model.CustomerName (@Model.CustomerPhone)</p>
-                <p class="mb-1"><strong>Email:</strong> @Model.CustomerEmail</p>
+    string badgeClass = Model.Status switch
+    {
+        1 => "bg-secondary text-white",
+        2 => "bg-primary text-white",
+        3 => "bg-info text-dark",
+        4 => "bg-success text-white",
+        -1 => "bg-danger text-white",
+        -2 => "bg-dark text-white",
+        _ => "bg-light text-dark"
+    };
+}
+
+<div class="container mt-3 mb-5">
+
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end mb-4 gap-2">
+        <div>
+            <h3 class="fw-black text-uppercase m-0" style="letter-spacing: -1px; text-shadow: 2px 2px 0 #ffdd00, 3px 3px 0 #000;">
+                CHI TIẾT ĐƠN <span class="text-white" style="text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">#@Model.OrderID</span>
+            </h3>
+        </div>
+        <div>
+            <a class="brutal-btn bg-white text-dark py-1 px-2" style="font-size: 0.85rem;" asp-controller="Order" asp-action="MyOrders">
+                <i class="fa-solid fa-arrow-left me-1"></i>QUAY LẠI
+            </a>
+            <noscript><a href="~/Order/MyOrders" class="brutal-btn bg-white text-dark py-1 px-2">← Quay lại</a></noscript>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="brutal-box bg-white p-3 h-100 position-relative">
+                <div class="position-absolute top-0 end-0 bg-dark text-white px-2 py-1 border-start border-bottom border-dark border-2 fw-black" style="font-size: 0.7rem;">
+                    <i class="fa-regular fa-clock me-1"></i> @Model.OrderTime.ToString("g")
+                </div>
+
+                <h6 class="fw-black text-uppercase mb-3 border-bottom border-dark border-2 pb-2 d-inline-block">Khách hàng</h6>
+
+                <ul class="list-unstyled m-0 fw-bold small text-dark d-flex flex-column gap-2">
+                    <li><i class="fa-solid fa-user-astronaut me-2 text-primary"></i> <span class="text-uppercase">@Model.CustomerName</span></li>
+                    <li><i class="fa-solid fa-phone-volume me-2 text-success"></i> @Model.CustomerPhone</li>
+                    <li><i class="fa-solid fa-envelope me-2 text-danger"></i> @Model.CustomerEmail</li>
+                </ul>
             </div>
-            <div class="col-md-6">
-                <p class="mb-1"><strong>Giao tới:</strong> @Model.DeliveryAddress</p>
-                <p class="mb-1"><strong>Tỉnh/Thành:</strong> @Model.DeliveryProvince</p>
-                <p class="mb-1"><strong>Trạng thái:</strong> <span class="badge @(Model.Status == 4 ? "bg-success" : Model.Status == 3 ? "bg-info text-dark" : Model.Status == 2 ? "bg-primary" : "bg-secondary")">@Model.StatusDescription</span></p>
-                <p class="mb-0"><strong>Thanh toán:</strong> @Model.PaymentMethod</p>
+        </div>
+
+        <div class="col-md-6">
+            <div class="brutal-box bg-light p-3 h-100" style="background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 10px 10px;">
+                <h6 class="fw-black text-uppercase mb-3 border-bottom border-dark border-2 pb-2 bg-white d-inline-block px-2 border border-2 shadow-sm m-0">Giao hàng & Trạng thái</h6>
+
+                <ul class="list-unstyled m-0 fw-bold small mt-2 d-flex flex-column gap-2 bg-white p-2 border border-dark border-2">
+                    <li><i class="fa-solid fa-location-dot me-2 text-danger"></i> @Model.DeliveryAddress, @Model.DeliveryProvince</li>
+                    <li><i class="fa-solid fa-money-bill-wave me-2 text-success"></i> Thanh toán: <span class="text-uppercase">@Model.PaymentMethod</span></li>
+                    <li class="pt-1 mt-1 border-top border-dark border-1 d-flex align-items-center">
+                        <i class="fa-solid fa-satellite-dish me-2 text-primary"></i> Trạng thái:
+                        <span class="brutal-badge ms-2 @badgeClass" style="font-size: 0.7rem;">@Model.StatusDescription</span>
+                    </li>
+                </ul>
             </div>
+        </div>
+    </div>
+
+    <div class="brutal-box bg-white p-0">
+        <div class="bg-warning text-dark p-2 border-bottom border-dark border-2 d-flex justify-content-between align-items-center">
+            <h6 class="fw-black text-uppercase m-0"><i class="fa-solid fa-box-open me-2"></i>Danh sách mặt hàng</h6>
+        </div>
+
+        <div class="card-body p-0">
+            @if (!details.Any())
+            {
+                <div class="p-4 text-center fw-bold">Không có mặt hàng nào trong đơn này!</div>
+            }
+            else
+            {
+                <div class="table-responsive brutal-table-wrapper m-0 border-0 shadow-none">
+                    <table class="table table-sm table-borderless m-0 align-middle fw-bold" style="font-size: 0.85rem;">
+                        <thead class="text-uppercase bg-white border-bottom border-dark border-2">
+                            <tr>
+                                <th class="py-2 px-3 text-center" style="width: 80px;">Ảnh</th>
+                                <th class="py-2 px-3">Sản phẩm</th>
+                                <th class="py-2 px-3 text-center">SL</th>
+                                <th class="py-2 px-3 text-end">Đơn giá</th>
+                                <th class="py-2 px-3 text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in details)
+                            {
+                                <tr class="border-bottom border-dark border-1">
+                                    <td class="px-3 py-2 text-center">
+                                        <img src="@(string.IsNullOrEmpty(d.Photo) ? "/images/no-image.png" : (d.Photo.StartsWith("http") ? d.Photo : Url.Content($"~/images/products/{d.Photo}")))"
+                                             alt="@d.ProductName"
+                                             class="brutal-img"
+                                             style="width: 50px; height: 50px; object-fit: cover;" />
+                                    </td>
+                                    <td class="px-3">@d.ProductName</td>
+                                    <td class="px-3 text-center text-primary fs-6">@d.Quantity</td>
+                                    <td class="px-3 text-end text-muted">@d.SalePrice.ToString("N0") <span style="font-size: 0.7rem">VND</span></td>
+                                    <td class="px-3 text-end fs-6">@d.TotalPrice.ToString("N0") <span style="font-size: 0.7rem">VND</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-black text-uppercase fs-6 text-white-50">Tổng thanh toán:</span>
+                    <span class="fw-black text-warning" style="font-size: 1.25rem;">@total.ToString("N0") VND</span>
+                </div>
+            }
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <h6 class="mb-0">Chi tiết mặt hàng</h6>
-    </div>
-    <div class="card-body p-0">
-        @if (!details.Any())
-        {
-            <div class="p-3 text-muted">Không có mặt hàng.</div>
+<style>
+
+    .brutal-box {
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0px #000;
+        border-radius: 0;
+    }
+
+    .brutal-btn {
+        display: inline-block;
+        background-color: var(--bs-primary);
+        color: #fff;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.15s ease-in-out;
+        border-radius: 0;
+        cursor: pointer;
+        text-align: center;
+    }
+
+        .brutal-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+            background-color: #000 !important;
+            color: #ffdd00 !important;
         }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Ảnh</th>
-                            <th>Sản phẩm</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-end">Đơn giá</th>
-                            <th class="text-end">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var d in details)
-                        {
-                            <tr>
-                                <td style="width:80px;">
-                                    <img src="@(string.IsNullOrEmpty(d.Photo) ? "/images/no-image.png" : (d.Photo.StartsWith("http") ? d.Photo : Url.Content($"~/images/products/{d.Photo}")))" alt="@d.ProductName" style="width:64px;height:48px;object-fit:cover;" />
-                                </td>
-                                <td>@d.ProductName</td>
-                                <td class="text-center">@d.Quantity</td>
-                                <td class="text-end">@d.SalePrice.ToString("N0") VND</td>
-                                <td class="text-end">@d.TotalPrice.ToString("N0") VND</td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="4" class="text-end"><strong>Tổng</strong></td>
-                            <td class="text-end"><strong>@total.ToString("N0") VND</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        }
-    </div>
-</div>
+
+    .brutal-badge {
+        display: inline-block;
+        padding: 3px 6px;
+        border: 2px solid #000;
+        font-weight: 900;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    .brutal-img {
+        border: 2px solid #000;
+        background-color: #fff;
+        padding: 2px;
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

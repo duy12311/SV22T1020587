@@ -7,237 +7,377 @@
     var orders = ViewBag.Orders as IEnumerable<OrderViewInfo> ?? Enumerable.Empty<OrderViewInfo>();
     var provinces = ViewBag.Provinces as IEnumerable<Province> ?? Enumerable.Empty<Province>();
 }
-<div class="row">
-    <div class="col-lg-3 mb-3">
-        <div class="list-group sticky-top" style="top:100px;">
-            <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#profileInfo">Thông tin cá nhân</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#orderHistory">Lịch sử mua hàng</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#changePassword">Đổi mật khẩu</a>
+
+<div class="container mt-3 mb-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end mb-3 gap-2">
+        <div>
+            <h2 class="fw-black text-uppercase m-0" style="letter-spacing: -1px; text-shadow: 2px 2px 0 #ffdd00, 3px 3px 0 #000;">HỒ SƠ CỦA TÔI</h2>
+        </div>
+        <div>
+            <a class="brutal-btn bg-white text-dark py-1 px-2" style="font-size: 0.85rem;" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-arrow-left me-1"></i>QUAY LẠI
+            </a>
         </div>
     </div>
 
-    <div class="col-lg-9">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <a class="btn btn-outline-secondary btn-sm" asp-controller="Home" asp-action="Index">← Trở về</a>
+    <div class="nav brutal-nav-tabs d-flex gap-2 mb-3 flex-nowrap overflow-auto pb-1" role="tablist">
+        <button class="brutal-tab active" data-bs-toggle="pill" data-bs-target="#profileInfo" type="button" role="tab" aria-selected="true">
+            <i class="fa-solid fa-user-astronaut mb-1 fs-5 d-block"></i> THÔNG TIN
+        </button>
+        <button class="brutal-tab" data-bs-toggle="pill" data-bs-target="#orderHistory" type="button" role="tab" aria-selected="false">
+            <i class="fa-solid fa-receipt mb-1 fs-5 d-block"></i> LỊCH SỬ ĐƠN
+        </button>
+        <button class="brutal-tab" data-bs-toggle="pill" data-bs-target="#changePassword" type="button" role="tab" aria-selected="false">
+            <i class="fa-solid fa-key mb-1 fs-5 d-block"></i> MẬT KHẨU
+        </button>
+    </div>
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active" id="profileInfo" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="brutal-box bg-white p-3 h-100">
+                        <h5 class="fw-black text-uppercase mb-3 border-bottom border-dark border-2 pb-2">Cập nhật hồ sơ</h5>
+
+                        @if (TempData["InfoMessage"] != null)
+                        {
+                            <div class="brutal-alert bg-success text-white mb-3">@TempData["InfoMessage"]</div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="brutal-alert bg-danger text-white mb-3">@TempData["ErrorMessage"]</div>
+                        }
+                        @Html.ValidationSummary(false, "", new { @class = "text-danger fw-bold mb-2 small list-unstyled" })
+
+                        <form method="post" action="~/Account/Profile">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="CustomerID" value="@Model?.CustomerID" />
+
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Họ và tên</label>
+                                    <input type="text" name="CustomerName" class="form-control brutal-input" value="@Model?.CustomerName" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Tên giao dịch</label>
+                                    <input type="text" name="ContactName" class="form-control brutal-input" value="@Model?.ContactName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Số điện thoại</label>
+                                    <input type="tel" name="Phone" class="form-control brutal-input" value="@Model?.Phone" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Email</label>
+                                    <input type="email" name="Email" class="form-control brutal-input" value="@Model?.Email" required />
+                                </div>
+                                <div class="col-12">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Địa chỉ</label>
+                                    <input type="text" name="Address" class="form-control brutal-input" value="@Model?.Address" required />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="fw-black text-uppercase" style="font-size: 0.75rem;">Tỉnh/Thành</label>
+                                    <select name="Province" class="form-select brutal-input shadow-none">
+                                        <option value="">-- Chọn khu vực --</option>
+                                        @foreach (var p in provinces)
+                                        {
+                                            var isSelected = string.Equals((p.ProvinceName ?? "").Trim(), (Model?.Province ?? "").Trim(), System.StringComparison.OrdinalIgnoreCase);
+                                            if (isSelected)
+                                            {
+                                                <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-12 mt-3">
+                                    <button type="submit" class="brutal-btn w-100 py-2 fw-black text-uppercase">LƯU THAY ĐỔI</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="brutal-box p-3 bg-light h-100" style="background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 10px 10px;">
+                        <h6 class="fw-black text-uppercase bg-white p-2 border border-dark border-2 d-inline-block mb-3 shadow-sm m-0">Đơn hàng đang xử lý</h6>
+                        @{
+                            var activeOrders = orders.Where(o => o.Status != 4).ToList();
+                        }
+                        @if (!activeOrders.Any())
+                        {
+                            <div class="brutal-alert bg-white text-dark text-center py-4">
+                                <i class="fa-solid fa-box-open fs-3 text-muted mb-2 d-block"></i>
+                                <span class="small">Không có đơn hàng nào đang xử lý.</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                @foreach (var o in activeOrders)
+                                {
+                                    string badgeClass = o.Status switch
+                                    {
+                                        1 => "bg-secondary text-white",
+                                        2 => "bg-primary text-white",
+                                        3 => "bg-info text-dark",
+                                        -1 => "bg-danger text-white",
+                                        -2 => "bg-dark text-white",
+                                        _ => "bg-light text-dark"
+                                    };
+
+                                    <div class="brutal-box bg-white p-2 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-black m-0" style="font-size: 0.9rem;">#@o.OrderID</h6>
+                                            <small class="text-muted fw-bold d-block" style="font-size: 0.75rem;">@o.OrderTime.ToString("dd/MM/yyyy HH:mm")</small>
+                                            <div class="mt-1">
+                                                <span class="brutal-badge @badgeClass">@o.StatusDescription</span>
+                                            </div>
+                                        </div>
+                                        <a class="brutal-btn bg-white text-dark px-2 py-1" style="font-size: 0.75rem;" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">XEM</a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="profileInfo">
-                <div class="card p-4 shadow-sm">
-                    <h5>Thông tin cá nhân</h5>
-
-                    @if (TempData["InfoMessage"] != null)
-                    {
-                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
-                    }
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-                    }
-
-                    @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
-
-                    <form method="post" action="~/Account/Profile">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="CustomerID" value="@Model?.CustomerID" />
-
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Họ và tên</label>
-                                <input type="text" name="CustomerName" class="form-control" value="@Model?.CustomerName" required />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tên giao dịch (Contact)</label>
-                                <input type="text" name="ContactName" class="form-control" value="@Model?.ContactName" />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Số điện thoại</label>
-                                <input type="tel" name="Phone" class="form-control" value="@Model?.Phone" required />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="Email" class="form-control" value="@Model?.Email" required />
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Địa chỉ</label>
-                                <input type="text" name="Address" class="form-control" value="@Model?.Address" required />
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tỉnh/Thành</label>
-                                <select name="Province" class="form-select">
-                                    <option value="">-- Chọn tỉnh/thành --</option>
-                                    @foreach (var p in provinces)
-                                    {
-                                        var isSelected = string.Equals((p.ProvinceName ?? "").Trim(), (Model?.Province ?? "").Trim(), System.StringComparison.OrdinalIgnoreCase);
-                                        if (isSelected)
-                                        {
-                                            <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@p.ProvinceName">@p.ProvinceName</option>
-                                        }
-                                    }
-                                </select>
-                            </div>
-
-                            <div class="col-12 text-end mt-2">
-                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Trạng thái đơn hàng (chưa giao thành công) -->
-                <div class="card p-3 shadow-sm mt-3">
-                    <h5>Trạng thái đơn hàng đang xử lý</h5>
-                    @{
-                        var activeOrders = orders.Where(o => o.Status != 4).ToList();
-                    }
-                    @if (!activeOrders.Any())
-                    {
-                        <div class="alert alert-info mb-0">Không có đơn hàng đang xử lý (chưa giao thành công).</div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle mb-0">
-                                <thead>
+        <div class="tab-pane fade" id="orderHistory" role="tabpanel">
+            <div class="brutal-box bg-white p-3">
+                <h5 class="fw-black text-uppercase mb-3 border-bottom border-dark border-2 pb-2">Tất cả đơn hàng</h5>
+                @if (!orders.Any())
+                {
+                    <div class="brutal-alert bg-light text-dark text-center py-4 small">Bạn chưa có đơn hàng nào trong lịch sử.</div>
+                }
+                else
+                {
+                    <div class="table-responsive brutal-table-wrapper">
+                        <table class="table table-sm table-bordered border-dark m-0 table-hover align-middle fw-bold" style="font-size: 0.85rem;">
+                            <thead class="table-dark text-uppercase">
+                                <tr>
+                                    <th class="py-2 px-2">Mã đơn</th>
+                                    <th class="py-2 px-2">Ngày đặt</th>
+                                    <th class="py-2 px-2">Trạng thái</th>
+                                    <th class="py-2 px-2 text-center" style="width: 80px;">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var o in orders)
+                                {
                                     <tr>
-                                        <th>Mã đơn</th>
-                                        <th>Ngày</th>
-                                        <th>Trạng thái</th>
-                                        <th class="text-end">Hành động</th>
+                                        <td class="px-2">#@o.OrderID</td>
+                                        <td class="px-2">@o.OrderTime.ToString("g")</td>
+                                        <td class="px-2">
+                                            <span class="px-1 py-1 border border-dark border-1 text-uppercase text-nowrap" style="font-size:0.7rem; background-color: #f8f9fa;">
+                                                @o.StatusDescription
+                                            </span>
+                                        </td>
+                                        <td class="px-2 text-center">
+                                            <a class="brutal-btn bg-primary text-white px-2 py-1 text-decoration-none" style="font-size:0.75rem;" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">Xem</a>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var o in activeOrders)
-                                    {
-                                        string badgeClass = o.Status switch
-                                        {
-                                            1 => "bg-secondary",
-                                            2 => "bg-primary",
-                                            3 => "bg-info text-dark",
-                                            -1 => "bg-danger",
-                                            -2 => "bg-dark",
-                                            _ => "bg-light text-dark"
-                                        };
-                                        <tr>
-                                            <td>@o.OrderID</td>
-                                            <td>@o.OrderTime.ToString("g")</td>
-                                            <td><span class="badge @badgeClass">@o.StatusDescription</span></td>
-                                            <td class="text-end">
-                                                <a class="btn btn-sm btn-outline-primary" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">Xem</a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <p class="small text-muted mt-2 mb-0">Những đơn ở đây là các đơn chưa ở trạng thái "Thành công".</p>
-                    }
-                </div>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
+        </div>
 
-            <div class="tab-pane fade" id="orderHistory">
-                <div class="card p-3 shadow-sm">
-                    <h5>Lịch sử mua hàng</h5>
-                    @if (!orders.Any())
-                    {
-                        <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Mã đơn</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Trạng thái</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var o in orders)
-                                    {
-                                        <tr>
-                                            <td>@o.OrderID</td>
-                                            <td>@o.OrderTime.ToString("g")</td>
-                                            <td>@o.StatusDescription</td>
-                                            <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-controller="Order" asp-action="Detail" asp-route-id="@o.OrderID">Xem</a></td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <p class="small text-muted">Nhấn "Xem" để xem chi tiết đơn hàng.</p>
-                    }
-                </div>
-            </div>
+        <div class="tab-pane fade" id="changePassword" role="tabpanel">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="brutal-box bg-dark text-white p-3 p-md-4">
+                        <h5 class="fw-black text-uppercase mb-3 text-warning border-bottom border-white border-2 pb-2">Đổi mật khẩu</h5>
 
-            <div class="tab-pane fade" id="changePassword">
-                <div class="card p-4 shadow-sm">
-                    <h5>Đổi mật khẩu</h5>
+                        @if (TempData["InfoMessage"] != null)
+                        {
+                            <div class="brutal-alert bg-success text-white mb-3">@TempData["InfoMessage"]</div>
+                        }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="brutal-alert bg-danger text-white mb-3">@TempData["ErrorMessage"]</div>
+                        }
+                        @Html.ValidationSummary(false, "", new { @class = "text-warning fw-bold mb-2 small list-unstyled" })
 
-                    @* show messages when redirected back *@
-                    @if (TempData["InfoMessage"] != null)
-                    {
-                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
-                    }
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-                    }
-
-                    @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
-                    <form method="post" action="~/Account/ChangePassword">
-                        @Html.AntiForgeryToken()
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu hiện tại</label>
-                            <input type="password" name="currentPassword" class="form-control" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu mới</label>
-                            <input type="password" name="newPassword" class="form-control" required minlength="6" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nhập lại mật khẩu mới</label>
-                            <input type="password" name="confirmPassword" class="form-control" required />
-                        </div>
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary">Cập nhật mật khẩu</button>
-                        </div>
-                    </form>
+                        <form method="post" action="~/Account/ChangePassword">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase text-white-50" style="font-size: 0.75rem;">Mật khẩu hiện tại</label>
+                                <input type="password" name="currentPassword" class="form-control brutal-input border-white" required />
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase text-white-50" style="font-size: 0.75rem;">Mật khẩu mới</label>
+                                <input type="password" name="newPassword" class="form-control brutal-input border-white" required minlength="6" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="fw-black text-uppercase text-white-50" style="font-size: 0.75rem;">Nhập lại mật khẩu mới</label>
+                                <input type="password" name="confirmPassword" class="form-control brutal-input border-white" required />
+                            </div>
+                            <div class="text-end mt-4">
+                                <button type="submit" class="brutal-btn bg-warning text-dark w-100 py-2 fw-black hover-invert">CẬP NHẬT MẬT KHẨU</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
+<style>
+
+    .brutal-box {
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0px #000;
+        border-radius: 0;
+    }
+
+    .brutal-btn {
+        display: inline-block;
+        background-color: var(--bs-primary);
+        color: #fff;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.15s ease-in-out;
+        border-radius: 0;
+        cursor: pointer;
+        text-align: center;
+    }
+
+        .brutal-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+            background-color: #000 !important;
+            color: #ffdd00 !important;
+        }
+
+        .brutal-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+    .brutal-nav-tabs {
+        border-bottom: none;
+        scrollbar-width: none;
+    }
+
+        .brutal-nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+    .brutal-tab {
+        flex: 1;
+        min-width: 130px;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        font-weight: 900;
+        font-size: 0.85rem;
+        padding: 8px 10px;
+        text-align: center;
+        transition: all 0.1s;
+        border-radius: 0;
+        text-transform: uppercase;
+    }
+
+        .brutal-tab:hover {
+            background: #f8f9fa;
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .brutal-tab.active {
+            background: #000;
+            color: #ffdd00;
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #000;
+            border-color: #000;
+        }
+
+    .brutal-input {
+        border: 2px solid #000;
+        border-radius: 0;
+        font-weight: bold;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+        .brutal-input:focus {
+            box-shadow: 3px 3px 0px #000;
+            border-color: #000;
+            outline: none;
+            transform: translate(-1px, -1px);
+        }
+
+    .brutal-alert {
+        border: 2px solid #000;
+        padding: 10px;
+        font-weight: 900;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    .brutal-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border: 1px solid #000;
+        font-weight: 900;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    .brutal-table-wrapper {
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+    }
+
+    .table-bordered > :not(caption) > * > * {
+        border-width: 1px;
+        border-color: #000;
+    }
+</style>
 
 @section Scripts {
     <script>
         (function () {
-          // If a hash is present on load, try to activate the corresponding list-group tab.
           try {
             var hash = location.hash;
             if (hash) {
-              // find anchor in the profile list group that points to the fragment
-              var link = document.querySelector('.list-group a[href="' + hash + '"]');
+              var link = document.querySelector('.brutal-nav-tabs button[data-bs-target="' + hash + '"]');
               if (link && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
-                // show the tab associated with the link
                 var tab = bootstrap.Tab.getOrCreateInstance(link);
                 tab.show();
-                // optionally scroll the tab into view (useful if link came from another page)
-                link.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                link.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }
           } catch (e) {
-            // fail silently — UI still usable
             console.error(e);
           }
+
+          document.querySelectorAll('.brutal-tab').forEach(button => {
+              button.addEventListener('shown.bs.tab', function (event) {
+                  const targetId = event.target.getAttribute('data-bs-target');
+                  if (history.pushState) {
+                      history.pushState(null, null, targetId);
+                  } else {
+                      location.hash = targetId;
+                  }
+              });
+          });
         })();
     </script>
 }

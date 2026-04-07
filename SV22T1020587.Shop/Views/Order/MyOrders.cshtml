@@ -4,50 +4,127 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h3>Đơn hàng của tôi</h3>
+<div class="container mt-3 mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="fw-black text-uppercase m-0" style="letter-spacing: -1px; text-shadow: 2px 2px 0 #ffdd00, 3px 3px 0 #000;">
+                KIỂM TRA ĐƠN HÀNG
+            </h2>
+            <p class="text-muted fw-bold m-0 small">Theo dõi hành trình các gói hàng của bạn</p>
+        </div>
+        <a class="brutal-btn bg-white text-dark py-1 px-3" style="font-size: 0.85rem;" asp-controller="Account" asp-action="Profile">
+            <i class="fa-solid fa-arrow-left me-1"></i> TRỞ VỀ
+        </a>
+    </div>
 
-<div class="mb-3">
-    <a class="btn btn-outline-secondary btn-sm" asp-controller="Account" asp-action="Profile">← Trở về</a>
-    <noscript><a href="~/Account/Profile" class="btn btn-outline-secondary btn-sm">← Trở về</a></noscript>
-</div>
-
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">Bạn chưa có đơn hàng nào.</div>
-}
-else
-{
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Ngày</th>
-                <th>Trạng thái</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="brutal-box bg-light p-5 text-center">
+            <i class="fa-solid fa-box-open fs-1 mb-3 text-muted"></i>
+            <h4 class="fw-black">CHƯA CÓ ĐƠN NÀO!</h4>
+            <p class="fw-bold text-muted">Có vẻ như bạn chưa chốt đơn nào cả. Đi shopping thôi!</p>
+            <a href="~/Product" class="brutal-btn bg-warning text-dark py-2 px-4 mt-2">ĐẾN CỬA HÀNG</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
             @foreach (var o in Model)
             {
-                string badgeClass = o.Status switch
+                string colorHex = o.Status switch
                 {
-                    1 => "bg-secondary",    // Chờ duyệt
-                    2 => "bg-primary",      // Đã duyệt (Chờ giao hàng)
-                    3 => "bg-info text-dark", // Đang giao hàng
-                    4 => "bg-success",      // Thành công
-                    -1 => "bg-danger",      // Đã hủy
-                    -2 => "bg-dark",        // Bị từ chối
-                    _ => "bg-light text-dark"
+                    1 => "#6c757d", 
+                    2 => "#0d6efd", 
+                    3 => "#0dcaf0", 
+                    4 => "#198754", 
+                    -1 => "#dc3545", 
+                    -2 => "#212529", 
+                    _ => "#f8f9fa"
                 };
-                <tr>
-                    <td>@o.OrderID</td>
-                    <td>@o.OrderTime.ToString("g")</td>
-                    <td>
-                        <span class="badge @badgeClass">@o.StatusDescription</span>
-                    </td>
-                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="~/Order/Detail/@o.OrderID">Xem</a></td>
-                </tr>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="brutal-box bg-white h-100 d-flex flex-column" style="border-top: 10px solid @colorHex;">
+                        <div class="p-3 flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="fw-black fs-5">#@o.OrderID</span>
+                                <span class="brutal-badge" style="background-color: @colorHex; color: @(o.Status == 3 ? "#000" : "#fff")">
+                                    @o.StatusDescription
+                                </span>
+                            </div>
+
+                            <div class="small fw-bold text-muted mb-3">
+                                <i class="fa-regular fa-calendar-check me-1"></i> @o.OrderTime.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+
+                            <div class="d-flex gap-1 mb-3">
+                                @for (int i = 1; i <= 4; i++)
+                                {
+                                    <div style="height: 4px; flex: 1; background-color: @(i <= o.Status ? colorHex : "#e9ecef"); border: 1px solid #000;"></div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="p-2 border-top border-dark border-2 bg-light d-flex justify-content-between align-items-center">
+                            <div class="ps-2">
+                                <span class="small fw-bold text-uppercase" style="font-size: 0.7rem;">Trạng thái đơn</span>
+                            </div>
+                            <a class="brutal-btn bg-white text-dark py-1 px-3 fw-black" style="font-size: 0.8rem;" href="~/Order/Detail/@o.OrderID">
+                                CHI TIẾT <i class="fa-solid fa-chevron-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    }
+</div>
+
+<style>
+    .fw-black {
+        font-weight: 900 !important;
+    }
+
+    .brutal-box {
+        border: 2px solid #000;
+        box-shadow: 5px 5px 0px #000;
+        transition: all 0.2s ease;
+        border-radius: 0;
+    }
+
+        .brutal-box:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #000;
+        }
+
+    .brutal-btn {
+        display: inline-block;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-decoration: none;
+        transition: all 0.1s active;
+        cursor: pointer;
+    }
+
+        .brutal-btn:hover {
+            background-color: #000 !important;
+            color: #ffdd00 !important;
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        .brutal-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+    .brutal-badge {
+        font-size: 0.65rem;
+        font-weight: 900;
+        padding: 4px 8px;
+        border: 2px solid #000;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px #000;
+    }
+</style>

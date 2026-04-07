@@ -3,61 +3,140 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Đăng nhập tài khoản</h4>
+        <div class="col-md-5">
+            <div class="brutal-box bg-white overflow-hidden">
+                <div class="bg-primary p-3 border-bottom border-dark border-2 d-flex align-items-center justify-content-between">
+                    <h4 class="fw-black text-white m-0 text-uppercase" style="letter-spacing: 1px;">ĐĂNG NHẬP</h4>
+                    <i class="fa-solid fa-bolt-lightning text-warning fs-4"></i>
                 </div>
-                <div class="card-body">
+
+                <div class="p-4">
                     @if (TempData["InfoMessage"] != null)
                     {
-                        <div class="alert alert-success">@TempData["InfoMessage"]</div>
+                        <div class="brutal-alert bg-success text-white mb-3">@TempData["InfoMessage"]</div>
                     }
                     @if (TempData["ErrorMessage"] != null)
                     {
-                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                        <div class="brutal-alert bg-danger text-white mb-3">@TempData["ErrorMessage"]</div>
                     }
 
-                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="All" class="text-danger fw-bold small mb-3 list-unstyled"></div>
 
-                    <form asp-action="Login" asp-controller="Account" method="post" novalidate>
+                    <form asp-action="Login" asp-controller="Account" method="post" id="loginForm" novalidate>
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="returnUrl" value="@(ViewBag.ReturnUrl ?? "")" />
 
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" id="loginEmail" class="form-control" placeholder="Nhập email của bạn..." required />
-                            <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+                            <label class="fw-black text-uppercase small mb-1">Địa chỉ Email</label>
+                            <div class="position-relative">
+                                <input type="email" name="email" id="loginEmail" class="form-control brutal-input ps-5" placeholder="name@example.com" required />
+                                <i class="fa-solid fa-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu..." required />
-                            <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+                            <label class="fw-black text-uppercase small mb-1">Mật khẩu</label>
+                            <div class="position-relative">
+                                <input type="password" name="password" class="form-control brutal-input ps-5" placeholder="••••••••" required />
+                                <i class="fa-solid fa-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                            </div>
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" name="remember" class="form-check-input" id="remember" />
-                            <label class="form-check-label" for="remember">Nhớ mật khẩu</label>
+                        <div class="mb-4 d-flex justify-content-between align-items-center">
+                            <div class="form-check custom-brutal-check">
+                                <input type="checkbox" name="remember" class="form-check-input shadow-none" id="remember" />
+                                <label class="form-check-label fw-bold small" for="remember">Ghi nhớ tôi</label>
+                            </div>
+                            <a asp-controller="Account" asp-action="ForgotPassword" class="fw-black small text-decoration-none text-primary">QUÊN MẬT KHẨU?</a>
                         </div>
 
-                        <div class="d-grid mt-4 mb-2">
-                            <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
-                        </div>
+                        <button type="submit" class="brutal-btn bg-warning text-dark w-100 py-2 fw-black text-uppercase fs-5 mb-3">
+                            VÀO HỆ THỐNG <i class="fa-solid fa-right-to-bracket ms-2"></i>
+                        </button>
                     </form>
-                </div>
-                <div class="card-footer text-center">
-                    <div class="d-flex justify-content-between small px-2">
-                        <a asp-controller="Account" asp-action="ForgotPassword" class="text-decoration-none">Quên mật khẩu?</a>
-                        <span>Chưa có tài khoản? <a asp-action="Register" asp-controller="Account" class="text-decoration-none">Đăng ký ngay</a></span>
+
+                    <div class="text-center mt-2">
+                        <p class="fw-bold small mb-0">Chưa có tài khoản?</p>
+                        <a asp-action="Register" asp-controller="Account" class="brutal-btn bg-white text-dark py-1 px-4 mt-2 small fw-black text-decoration-none">
+                            ĐĂNG KÝ NGAY
+                        </a>
                     </div>
                 </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p class="text-muted fw-bold small text-uppercase" style="letter-spacing: 2px;">© 2026 Your Brand Name</p>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .fw-black {
+        font-weight: 900 !important;
+    }
+
+    .brutal-box {
+        border: 3px solid #000;
+        box-shadow: 8px 8px 0px #000;
+        border-radius: 0;
+    }
+
+    .brutal-input {
+        border: 2px solid #000;
+        border-radius: 0;
+        padding: 10px 15px;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+        .brutal-input:focus {
+            box-shadow: 4px 4px 0px #000;
+            border-color: #000;
+            outline: none;
+        }
+
+    .brutal-btn {
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0px #000;
+        border-radius: 0;
+        transition: all 0.1s;
+        cursor: pointer;
+    }
+
+        .brutal-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000;
+            background-color: #000 !important;
+            color: #ffdd00 !important;
+        }
+
+        .brutal-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+    .brutal-alert {
+        border: 2px solid #000;
+        padding: 8px 12px;
+        font-weight: 900;
+        font-size: 0.85rem;
+        box-shadow: 3px 3px 0px #000;
+    }
+
+    .custom-brutal-check .form-check-input {
+        border: 2px solid #000;
+        border-radius: 0;
+        cursor: pointer;
+    }
+
+        .custom-brutal-check .form-check-input:checked {
+            background-color: #000;
+            border-color: #000;
+        }
+</style>
 
 @section Scripts {
     <script>
@@ -66,7 +145,6 @@
           var forms = document.querySelectorAll('form')
           Array.prototype.slice.call(forms).forEach(function (form) {
             form.addEventListener('submit', function (event) {
-              // normalize email same as controller
               var email = document.getElementById('loginEmail');
               if (email && email.value) email.value = email.value.trim().toLowerCase();
 
@@ -79,7 +157,6 @@
           })
         })()
     </script>
-
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 }
