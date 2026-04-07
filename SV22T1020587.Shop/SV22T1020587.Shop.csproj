@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="AppCodes\" />
-    <Folder Include="wwwroot\images\products\" />
   </ItemGroup>
 
 </Project>
