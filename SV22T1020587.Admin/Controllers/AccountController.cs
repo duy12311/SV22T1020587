@@ -47,14 +47,12 @@ namespace SV22T1020587.Admin.Controllers
                     new Claim("Photo", userAccount.Photo ?? "nophoto.png")
                 };
 
-                // 2. PHÂN QUYỀN ĐỘNG: Đảm bảo quyền được nạp chính xác vào Identity
+                // PHÂN QUYỀN ĐỘNG: Đảm bảo quyền được nạp chính xác vào Identity
                 if (!string.IsNullOrEmpty(userAccount.RoleNames))
                 {
-                    // Tách chuỗi quyền theo dấu phẩy
                     var roles = userAccount.RoleNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var role in roles)
                     {
-                        // Trim khoảng trắng thừa để tránh lỗi so sánh chuỗi
                         claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
                     }
                 }
@@ -62,43 +60,33 @@ namespace SV22T1020587.Admin.Controllers
                 var identity = new ClaimsIdentity(claims, "AdminWebAuth");
                 var principal = new ClaimsPrincipal(identity);
 
-                // 3. Đăng nhập và tạo Cookie
                 await HttpContext.SignInAsync("AdminWebAuth", principal);
 
-                // 4. Điều hướng sau khi đăng nhập thành công
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
                     return Redirect(returnUrl);
                 }
 
-                // --- TỰ ĐỘNG ĐIỀU HƯỚNG DỰA TRÊN QUYỀN ---
+                // TỰ ĐỘNG ĐIỀU HƯỚNG DỰA TRÊN QUYỀN
                 string userRoles = userAccount.RoleNames ?? "";
 
-                // Ưu tiên 1: Admin cho về Trang chủ (Dashboard tổng)
                 if (userRoles.Contains("Admin"))
                 {
                     return RedirectToAction("Index", "Home");
                 }
-
-                // Ưu tiên 2: Quyền Sale -> Điều hướng sang Order
                 if (userRoles.Contains("Sale"))
                 {
                     return RedirectToAction("Index", "Order");
                 }
-
-                // Ưu tiên 3: Quyền Kho -> Điều hướng sang Product
                 if (userRoles.Contains("Kho"))
                 {
                     return RedirectToAction("Index", "Product");
                 }
-
-                // Ưu tiên 4: Quyền Staff -> Điều hướng sang Customer
                 if (userRoles.Contains("Staff"))
                 {
                     return RedirectToAction("Index", "Customer");
                 }
 
-                // Mặc định an toàn
                 return RedirectToAction("Index", "Home");
             }
 
@@ -126,23 +114,22 @@ namespace SV22T1020587.Admin.Controllers
         {
             if (string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
             {
-                ModelState.AddModelError("Error", "Vui lòng nhập đầy đủ các trường mật khẩu.");
+                ViewBag.Error = "Vui lòng nhập đầy đủ các trường mật khẩu.";
                 return View();
             }
 
             if (newPassword != confirmPassword)
             {
-                ModelState.AddModelError("confirmPassword", "Mật khẩu xác nhận không khớp.");
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
                 return View();
             }
 
             string userName = User.Identity?.Name ?? "";
 
-            // Xác thực mật khẩu cũ trước khi cho phép đổi
             var checkOldPass = await SecurityDataService.AuthorizeEmployeeAsync(userName, oldPassword);
             if (checkOldPass == null)
             {
-                ModelState.AddModelError("oldPassword", "Mật khẩu cũ không chính xác.");
+                ViewBag.Error = "Mật khẩu cũ không chính xác.";
                 return View();
             }
 
@@ -150,11 +137,13 @@ namespace SV22T1020587.Admin.Controllers
 
             if (result)
             {
-                TempData["Message"] = "Đổi mật khẩu thành công!";
-                return RedirectToAction("Index", "Home");
+                // Thông báo thành công và ở lại trang hiện tại
+                ViewBag.Success = "Thay đổi mật khẩu thành công!";
+                ModelState.Clear(); // Xóa sạch các text box mật khẩu cũ vừa nhập
+                return View();
             }
 
-            ModelState.AddModelError("Error", "Đổi mật khẩu thất bại. Vui lòng thử lại sau.");
+            ViewBag.Error = "Đổi mật khẩu thất bại. Vui lòng thử lại sau.";
             return View();
         }
 
