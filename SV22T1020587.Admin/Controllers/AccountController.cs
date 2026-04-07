@@ -34,7 +34,6 @@ namespace SV22T1020587.Admin.Controllers
 
             if (userAccount != null)
             {
-                // 1. Khởi tạo danh sách Claims cơ bản (ĐÃ FIX LỖI TẠI ĐÂY)
                 var claims = new List<Claim>()
                 {
                     // Thêm claim "UserId" để hàm User.GetUserData() lấy đúng ID số của nhân viên
