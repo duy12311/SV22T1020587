@@ -58,7 +58,6 @@
                         <label class="form-label">Tỉnh / Thành</label>
                         <select class="form-select" name="Province">
                             @{
-                                // Gọi dữ liệu động từ SelectListHelper
                                 var provinces = await SV22T1020587.Admin.SelectListHelper.Provinces();
                                 foreach (var item in provinces)
                                 {

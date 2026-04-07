@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization; // 1. Bắt buộc thêm thư viện này
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020587.BusinessLayers;
 using SV22T1020587.Models.Catalog;
 using SV22T1020587.Models.Common;
+using System;
 using System.Threading.Tasks;
 
 namespace SV22T1020587.Admin.Controllers
 {
-    // 2. CHẶN TRUY CẬP: Loại hàng đi liền với Sản phẩm nên cấp quyền cho "Kho" và "Admin"
     [Authorize(Roles = "Kho, Admin")]
     public class CategoryController : Controller
     {
@@ -57,6 +57,7 @@ namespace SV22T1020587.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken] // Bảo mật Form
         public async Task<IActionResult> Save(Category data)
         {
             if (string.IsNullOrWhiteSpace(data.CategoryName))
@@ -68,12 +69,35 @@ namespace SV22T1020587.Admin.Controllers
                 return View("Edit", data);
             }
 
-            if (data.CategoryID == 0)
-                await CatalogDataService.AddCategoryAsync(data);
-            else
-                await CatalogDataService.UpdateCategoryAsync(data);
+            try
+            {
+                if (data.CategoryID == 0)
+                {
+                    await CatalogDataService.AddCategoryAsync(data);
+                    TempData["Message"] = "Đã bổ sung loại hàng mới thành công!";
+                }
+                else
+                {
+                    await CatalogDataService.UpdateCategoryAsync(data);
+                    TempData["Message"] = "Cập nhật thông tin loại hàng thành công!";
+                }
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                // Bắt lỗi CSDL (ví dụ nếu có unique key trên Tên loại hàng)
+                if (ex.GetBaseException().Message.Contains("UNIQUE KEY"))
+                {
+                    ModelState.AddModelError(nameof(data.CategoryName), "Tên loại hàng này đã tồn tại. Vui lòng nhập tên khác!");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi hệ thống khi lưu dữ liệu. Vui lòng thử lại!");
+                }
 
-            return RedirectToAction("Index");
+                ViewBag.Title = data.CategoryID == 0 ? "Bổ sung Loại hàng" : "Cập nhật Loại hàng";
+                return View("Edit", data);
+            }
         }
 
         public async Task<IActionResult> Delete(int id = 0)
@@ -85,15 +109,18 @@ namespace SV22T1020587.Admin.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken] // Bảo mật Form
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             bool result = await CatalogDataService.DeleteCategoryAsync(id);
             if (!result)
             {
-                ModelState.AddModelError("", "Không thể xóa loại hàng này vì đang có sản phẩm liên quan (ràng buộc dữ liệu)!");
-                var model = await CatalogDataService.GetCategoryAsync(id);
-                return View("Delete", model);
+                // Nếu không xóa được do có ràng buộc dữ liệu
+                TempData["Error"] = "Không thể xóa loại hàng này vì đang có sản phẩm liên quan (ràng buộc dữ liệu)!";
+                return RedirectToAction("Delete", new { id = id });
             }
+
+            TempData["Message"] = "Đã xóa loại hàng thành công.";
             return RedirectToAction("Index");
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization; // 1. Bắt buộc thêm thư viện này
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020587.BusinessLayers;
@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace SV22T1020587.Admin.Controllers
 {
-    // 2. CHẶN TRUY CẬP: Chỉ cho phép "Staff" hoặc "Admin" được quản lý Khách hàng
     [Authorize(Roles = "Staff, Admin")]
     public class CustomerController : Controller
     {
@@ -73,7 +72,6 @@ namespace SV22T1020587.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Save(Customer data)
         {
-            // Kiểm tra tính hợp lệ của Email (không được trùng lặp)
             if (!string.IsNullOrWhiteSpace(data.Email))
             {
                 bool isEmailValid = await PartnerDataService.IsValidCustomerEmailAsync(data.Email, data.CustomerID);
@@ -83,7 +81,6 @@ namespace SV22T1020587.Admin.Controllers
                 }
             }
 
-            // Nếu có lỗi, trả về lại View
             if (!ModelState.IsValid)
             {
                 ViewBag.Title = data.CustomerID == 0 ? "Bổ sung khách hàng" : "Cập nhật thông tin khách hàng";
@@ -94,10 +91,12 @@ namespace SV22T1020587.Admin.Controllers
             if (data.CustomerID == 0)
             {
                 await PartnerDataService.AddCustomerAsync(data);
+                HttpContext.Session.SetString("SuccessMessage", "Bổ sung khách hàng thành công!");
             }
             else
             {
                 await PartnerDataService.UpdateCustomerAsync(data);
+                HttpContext.Session.SetString("SuccessMessage", "Cập nhật thông tin khách hàng thành công!");
             }
             return RedirectToAction("Index");
         }
@@ -120,10 +119,8 @@ namespace SV22T1020587.Admin.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Gọi tầng Business để xóa
             bool result = await PartnerDataService.DeleteCustomerAsync(id);
 
-            // Nếu result = false, tức là khách hàng đã có dữ liệu liên quan (đơn hàng), không cho xóa
             if (!result)
             {
                 ModelState.AddModelError("", "Không thể xóa khách hàng này vì đã phát sinh dữ liệu giao dịch (đơn hàng).");
@@ -131,6 +128,7 @@ namespace SV22T1020587.Admin.Controllers
                 return View("Delete", model);
             }
 
+            HttpContext.Session.SetString("SuccessMessage", "Xóa khách hàng thành công!");
             return RedirectToAction("Index");
         }
 
@@ -146,14 +144,12 @@ namespace SV22T1020587.Admin.Controllers
             {
                 return RedirectToAction("Index");
             }
-            // Lưu ý: Đảm bảo file View của bạn tên là ChangePassword.cshtml
             return View(model);
         }
 
         [HttpPost]
         public async Task<IActionResult> SavePassword(int customerID, string newPassword, string confirmPassword)
         {
-            // Kiểm tra tính hợp lệ của mật khẩu
             if (string.IsNullOrWhiteSpace(newPassword))
             {
                 ModelState.AddModelError("newPassword", "Vui lòng nhập mật khẩu mới.");
@@ -163,14 +159,12 @@ namespace SV22T1020587.Admin.Controllers
                 ModelState.AddModelError("confirmPassword", "Mật khẩu xác nhận không khớp.");
             }
 
-            // Nếu có lỗi, trả về lại View
             if (!ModelState.IsValid)
             {
                 var model = await PartnerDataService.GetCustomerAsync(customerID);
                 return View("ChangePassword", model);
             }
 
-            // Gọi hàm xử lý dưới DB đã được tạo
             bool result = await PartnerDataService.ChangeCustomerPasswordAsync(customerID, newPassword);
 
             if (!result)
@@ -180,7 +174,7 @@ namespace SV22T1020587.Admin.Controllers
                 return View("ChangePassword", model);
             }
 
-            // Nếu thành công, quay về danh sách
+            HttpContext.Session.SetString("SuccessMessage", "Đổi mật khẩu thành công!");
             return RedirectToAction("Index");
         }
     }

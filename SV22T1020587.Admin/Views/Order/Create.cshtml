@@ -55,7 +55,7 @@
             </div>
             <div class="card-body d-flex flex-column" style="min-height: 0;">
                 <form id="frmSearchInput" action="~/Order/SearchProduct" method="get" class="mb-3">
-                    <input type="hidden" name="PageSize" value="8" /> @* Tăng số lượng để lấp đầy khoảng trống *@
+                    <input type="hidden" name="PageSize" value="8" />
                     <div class="input-group">
                         <input type="text" class="form-control border-end-0" name="SearchValue"
                                placeholder="Tìm tên mặt hàng..." autofocus />
@@ -66,7 +66,6 @@
                 </form>
 
                 <div id="searchResult">
-                    @* Dữ liệu load qua AJAX *@
                     <div class="text-center text-muted py-5">
                         <i class="bi bi-upc-scan fs-1 d-block mb-2"></i>
                         <small>Kết quả tìm kiếm sẽ hiện ở đây</small>
@@ -201,6 +200,8 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         (function () {
             // Hàm tìm kiếm sản phẩm
@@ -264,12 +265,15 @@
                         type: 'POST',
                         data: form.serialize(),
                         success: function (data) {
-                            if (data === "") showShoppingCart(); else alert(data);
+                            if (data === "") showShoppingCart();
+                            else {
+                                Swal.fire({ icon: 'warning', text: data });
+                            }
                         }
                     });
                 });
 
-                // Xử lý nộp đơn hàng
+                // XỬ LÝ LẬP ĐƠN HÀNG VỚI THÔNG BÁO THÀNH CÔNG
                 $(document).on('submit', '#frmOrderInit', function (e) {
                     e.preventDefault();
                     var $form = $(this);
@@ -281,7 +285,8 @@
                     }
 
                     var $btn = $('#btnSubmitOrder');
-                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...');
+                    // Hiệu ứng Loading trên nút
+                    $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> ĐANG XỬ LÝ...');
 
                     $.ajax({
                         url: $form.attr('action'),
@@ -289,23 +294,52 @@
                         data: $form.serialize(),
                         success: function (resp) {
                             if (resp.success) {
-                                window.location.href = '/Order/Detail/' + resp.orderID;
+                                // Thông báo thành công
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Lập đơn thành công!',
+                                    text: 'Hệ thống đang chuyển hướng đến chi tiết đơn hàng...',
+                                    timer: 2000,
+                                    showConfirmButton: false,
+                                    allowOutsideClick: false
+                                }).then(() => {
+                                    window.location.href = '/Order/Detail/' + resp.orderID;
+                                });
                             } else {
-                                alert(resp.message || 'Lỗi khi lập đơn');
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Lỗi lập đơn',
+                                    text: resp.message || 'Vui lòng kiểm tra lại thông tin.'
+                                });
                                 $btn.prop('disabled', false).html('<i class="bi bi-check2-circle me-2"></i>XÁC NHẬN LẬP ĐƠN HÀNG');
                             }
                         },
                         error: function () {
-                            alert('Lỗi kết nối server');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi kết nối',
+                                text: 'Không thể kết nối tới máy chủ.'
+                            });
                             $btn.prop('disabled', false).html('<i class="bi bi-check2-circle me-2"></i>XÁC NHẬN LẬP ĐƠN HÀNG');
                         }
                     });
                 });
 
                 $('#btnClearCart').on('click', function () {
-                    if(confirm("Bạn muốn xóa sạch giỏ hàng?")) {
-                         $.get('/Order/ClearCart', function() { showShoppingCart(); });
-                    }
+                    Swal.fire({
+                        title: 'Xác nhận xóa?',
+                        text: "Bạn muốn xóa sạch tất cả mặt hàng trong giỏ?",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Đúng, xóa sạch!',
+                        cancelButtonText: 'Hủy'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                             $.get('/Order/ClearCart', function() { showShoppingCart(); });
+                        }
+                    });
                 });
 
                 // Sửa số lượng trong modal

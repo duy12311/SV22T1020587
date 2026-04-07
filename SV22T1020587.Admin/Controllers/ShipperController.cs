@@ -73,16 +73,17 @@ namespace SV22T1020587.Admin.Controllers
             {
                 if (data.ShipperID == 0)
                 {
-                    int id = await PartnerDataService.AddShipperAsync(data);
+                    await PartnerDataService.AddShipperAsync(data);
                     TempData["Message"] = "Đã thêm mới người giao hàng thành công!";
-                    return RedirectToAction("Edit", new { id = id });
                 }
                 else
                 {
                     await PartnerDataService.UpdateShipperAsync(data);
                     TempData["Message"] = "Đã cập nhật thông tin người giao hàng thành công!";
-                    return RedirectToAction("Edit", new { id = data.ShipperID });
                 }
+
+                // Lưu xong thì quay về Index
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {

@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = Model.AttributeID == 0 ? "Bổ sung thuộc tính" : "Cập nhật thuộc tính";
 }
+
 @section PageToolBar {
     <button type="submit" form="formEdit" class="btn btn-primary">
         <i class="bi bi-save"></i> Lưu thuộc tính
@@ -10,11 +11,24 @@
         <i class="bi bi-arrow-left"></i> Quay lại
     </a>
 }
+
+@* --- PHẦN HIỂN THỊ THÔNG BÁO --- *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="row justify-content-center">
     <div class="col-12">
         <div class="card card-outline card-success">
             <div class="card-header">
-                <h5 class="mb-0">Thông tin thuộc tính mặt hàng</h5>
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check me-2"></i> Thông tin thuộc tính mặt hàng
+                </h5>
             </div>
             <div class="card-body">
                 <form id="formEdit" action="~/Product/SaveAttribute" method="post">
@@ -24,21 +38,27 @@
                     <div class="row mb-3">
                         <label class="col-sm-3 fw-semibold">Tên thuộc tính</label>
                         <div class="col-sm-9">
-                            <input type="text" name="AttributeName" class="form-control" value="@Model.AttributeName" placeholder="Ví dụ: Màu sắc, Kích thước" required autofocus />
+                            <input type="text" name="AttributeName" class="form-control"
+                                   value="@Model.AttributeName" placeholder="Ví dụ: Màu sắc, Kích thước" required autofocus />
+                            @Html.ValidationMessage(nameof(Model.AttributeName), new { @class = "text-danger" })
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label class="col-sm-3 fw-semibold">Giá trị thuộc tính</label>
                         <div class="col-sm-9">
-                            <input type="text" name="AttributeValue" class="form-control" value="@Model.AttributeValue" placeholder="Ví dụ: Đỏ, XL, 500g" required />
+                            <input type="text" name="AttributeValue" class="form-control"
+                                   value="@Model.AttributeValue" placeholder="Ví dụ: Đỏ, XL, 500g" required />
+                            @Html.ValidationMessage(nameof(Model.AttributeValue), new { @class = "text-danger" })
                         </div>
                     </div>
 
                     <div class="row mb-4">
                         <label class="col-sm-3 fw-semibold">Thứ tự hiển thị</label>
                         <div class="col-sm-3">
-                            <input type="number" name="DisplayOrder" class="form-control" value="@Model.DisplayOrder" min="1" />
+                            <input type="number" name="DisplayOrder" class="form-control"
+                                   value="@Model.DisplayOrder" min="1" />
+                            @Html.ValidationMessage(nameof(Model.DisplayOrder), new { @class = "text-danger" })
                         </div>
                     </div>
                 </form>
@@ -46,3 +66,14 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Tự động ẩn thông báo lỗi sau 3 giây nếu có
+            setTimeout(function () {
+                $(".alert-danger").fadeOut('slow');
+            }, 3000);
+        });
+    </script>
+}

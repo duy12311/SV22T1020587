@@ -1,36 +1,77 @@
 ﻿@{
-    ViewBag.Title = "Quản lý Nhà cung cấp";
 }
 
-@section PageToolBar {
-    <a href="~/Supplier/Create" class="btn btn-primary d-flex align-items-center ms-1">
-        <i class="bi bi-plus-circle me-1"></i> Bổ sung
-    </a>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Thành công!</strong> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <script>
+        // Tự động ẩn thông báo sau 3 giây
+        setTimeout(function () {
+            var alertElement = document.getElementById('successAlert');
+            if (alertElement) {
+                var bsAlert = new bootstrap.Alert(alertElement);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
 }
 
-<div class="card mb-3">
-    <div class="card-body">
-        <form id="formSearch" action="~/Supplier/Search" method="post" data-target="searchResult" onsubmit="paginationSearch(event, this, 1)">
+<div class="box box-primary">
+    <div class="box-body">
+        <form id="formSearch" action="~/Supplier/Search" method="post" data-container="#searchResult">
             <div class="input-group">
-                <input type="text" name="searchValue" class="form-control"
-                       value="@ViewBag.SearchValue"
-                       placeholder="Nhập tên nhà cung cấp..." autofocus />
-                <button class="btn btn-info d-flex align-items-center" type="submit">
-                    <i class="bi bi-search me-1"></i> Tìm kiếm
+                <input type="text" name="@nameof(PaginationSearchInput.SearchValue)"
+                       class="form-control"
+                       placeholder="Nhập tên nhà cung cấp cần tìm..."
+                       value="@ViewBag.SearchValue" autofocus>
+
+                <button class="btn btn-info" type="submit">
+                    <i class="bi bi-search"></i> Tìm kiếm
                 </button>
+
+                <a href="~/Supplier/Create" class="btn btn-primary" style="margin-left:5px">
+                    <i class="bi bi-plus-lg"></i> Bổ sung
+                </a>
             </div>
         </form>
+
+        <div id="searchResult" class="mt-3">
+        </div>
     </div>
 </div>
 
-<div id="searchResult">
-</div>
-
-@section Scripts {
+@section scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Tự động load trang đang xem trước đó nhờ biến ViewBag.Page
-            paginationSearch(null, document.getElementById("formSearch"), @ViewBag.Page);
+        function doSearch(page) {
+            var searchCondition = $("#formSearch").serializeArray();
+            searchCondition.push({ name: "Page", value: page });
+
+            var action = $("#formSearch").prop("action");
+            var method = $("#formSearch").prop("method");
+            var container = $("#formSearch").data("container");
+
+            $.ajax({
+                url: action,
+                type: method,
+                data: searchCondition,
+                success: function (data) {
+                    $(container).html(data);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#formSearch").submit(function (e) {
+                e.preventDefault();
+                doSearch(1);
+            });
+            // Khởi chạy tìm kiếm lần đầu theo trang ở Session
+            doSearch(@ViewBag.Page);
         });
     </script>
 }

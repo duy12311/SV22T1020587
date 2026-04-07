@@ -24,12 +24,12 @@
             <div class="card-body">
                 @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
 
-                <form id="formDelete" action="@Url.Action("Delete", "Customer")" method="post">
+                <form id="formDelete" action="@Url.Action("Delete", "Customer")" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khách hàng này vĩnh viễn không?');">
                     <input type="hidden" name="id" value="@Model.CustomerID" />
 
                     <div class="alert alert-warning d-flex align-items-center">
                         <i class="bi bi-info-circle me-2"></i>
-                        Bạn có chắc chắn muốn xóa khách hàng này không?
+                        Bạn có chắc chắn muốn xóa khách hàng này không? Dữ liệu đã xóa sẽ không thể khôi phục!
                     </div>
 
                     <dl class="row mb-0">

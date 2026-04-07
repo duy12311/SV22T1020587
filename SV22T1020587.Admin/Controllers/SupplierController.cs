@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization; // 1. Bắt buộc thêm thư viện này
-using Microsoft.AspNetCore.Http; // Bắt buộc phải có cho Session
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020587.BusinessLayers;
 using SV22T1020587.Models.Common;
@@ -9,30 +9,25 @@ using System.Threading.Tasks;
 
 namespace SV22T1020587.Admin.Controllers
 {
-    // 2. CHẶN TRUY CẬP: Cấp quyền cho Staff và Admin
     [Authorize(Roles = "Staff, Admin")]
     public class SupplierController : Controller
     {
         private const int PAGE_SIZE = 10;
-        private const string SEARCH_CONDITION = "SupplierSearchCondition"; // Tên Session
+        private const string SEARCH_CONDITION = "SupplierSearchCondition";
 
-        // Hàm Index chỉ làm nhiệm vụ nạp giao diện và khôi phục Session
         public IActionResult Index()
         {
             ViewBag.Title = "Quản lý Nhà cung cấp";
 
-            // Khôi phục điều kiện tìm kiếm từ session (Bookmark)
             ViewBag.Page = HttpContext.Session.GetInt32($"{SEARCH_CONDITION}_Page") ?? 1;
             ViewBag.SearchValue = HttpContext.Session.GetString($"{SEARCH_CONDITION}_Value") ?? "";
 
             return View();
         }
 
-        // Hàm Search làm nhiệm vụ AJAX trả về PartialView
         [HttpPost]
         public async Task<IActionResult> Search(PaginationSearchInput condition)
         {
-            // Lưu điều kiện vào session
             HttpContext.Session.SetInt32($"{SEARCH_CONDITION}_Page", condition.Page);
             HttpContext.Session.SetString($"{SEARCH_CONDITION}_Value", condition.SearchValue ?? "");
 
@@ -84,9 +79,15 @@ namespace SV22T1020587.Admin.Controllers
             try
             {
                 if (data.SupplierID == 0)
+                {
                     await PartnerDataService.AddSupplierAsync(data);
+                    TempData["SuccessMessage"] = "Bổ sung nhà cung cấp thành công!";
+                }
                 else
+                {
                     await PartnerDataService.UpdateSupplierAsync(data);
+                    TempData["SuccessMessage"] = "Cập nhật thông tin nhà cung cấp thành công!";
+                }
 
                 return RedirectToAction("Index");
             }
@@ -102,6 +103,7 @@ namespace SV22T1020587.Admin.Controllers
             if (Request.Method == "POST")
             {
                 await PartnerDataService.DeleteSupplierAsync(id);
+                TempData["SuccessMessage"] = "Xóa nhà cung cấp thành công!";
                 return RedirectToAction("Index");
             }
 

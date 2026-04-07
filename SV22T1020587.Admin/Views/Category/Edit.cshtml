@@ -4,8 +4,8 @@
 }
 
 @section PageToolBar {
-    <button type="submit" form="formEdit" class="btn btn-primary">
-        <i class="bi bi-save"></i>
+    <button type="submit" form="formEdit" class="btn btn-primary" onclick="return confirm('Xác nhận lưu dữ liệu?')">
+        <i class="bi bi-save me-1"></i>
         Lưu dữ liệu
     </button>
     <a href="~/Category" class="btn btn-secondary ms-1">
@@ -16,10 +16,10 @@
 
 <div class="row justify-content-center">
     <div class="col-12">
-        <div class="card card-primary card-outline">
+        <div class="card card-primary card-outline shadow-sm">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="bi bi-tags me-2"></i>
+                    <i class="bi bi-tags me-2 text-primary"></i>
                     Thông tin loại hàng
                 </h5>
             </div>
@@ -28,21 +28,20 @@
                 @Html.ValidationSummary(false, "", new { @class = "text-danger mb-3" })
 
                 <form id="formEdit" action="~/Category/Save" method="post">
-
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="CategoryID" value="@Model.CategoryID" />
 
                     <div class="mb-3">
-                        <label class="form-label">Tên loại hàng</label>
+                        <label class="form-label fw-bold">Tên loại hàng</label>
                         <input type="text"
                                class="form-control"
                                name="CategoryName"
                                value="@Model.CategoryName"
                                placeholder="Nhập tên loại hàng" autofocus />
-                        @Html.ValidationMessage("CategoryName", new { @class = "text-danger" })
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Mô tả</label>
+                        <label class="form-label fw-bold">Mô tả</label>
                         <textarea class="form-control"
                                   name="Description"
                                   rows="4"

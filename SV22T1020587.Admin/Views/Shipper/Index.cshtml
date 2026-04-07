@@ -7,6 +7,16 @@
     </a>
 }
 
+@* HIỂN THỊ THÔNG BÁO THÀNH CÔNG KHI TỪ EDIT/CREATE/DELETE CHUYỂN VỀ *@
+@if (TempData["Message"] != null)
+{
+    <div id="shipper-alert" class="alert alert-success alert-dismissible fade show shadow-sm mb-3 border-start border-success border-4">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Thành công!</strong> @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="card mb-3">
     <div class="card-body">
         <form id="formSearch" action="~/Shipper/Search" method="post" data-target="searchResult" onsubmit="paginationSearch(event, this, 1)">
@@ -29,7 +39,12 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Khôi phục đúng trang đang đứng
-            paginationSearch(null, document.getElementById("formSearch"), @ViewBag.Page);
+            paginationSearch(null, document.getElementById("formSearch"), @(ViewBag.Page ?? 1));
+
+            // Tự động ẩn thông báo thành công sau 3 giây
+            setTimeout(function () {
+                $("#shipper-alert").fadeOut("slow");
+            }, 3000);
         });
     </script>
 }

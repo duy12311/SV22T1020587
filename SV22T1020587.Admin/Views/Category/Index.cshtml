@@ -9,6 +9,15 @@
     </a>
 }
 
+@* HIỂN THỊ THÔNG BÁO TỪ CONTROLLER TRẢ VỀ *@
+@if (TempData["Message"] != null)
+{
+    <div id="msg-alert" class="alert alert-success alert-dismissible fade show shadow-sm mb-3 border-start border-success border-4">
+        <i class="bi bi-check-circle-fill me-2"></i> <strong>Thành công!</strong> @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="card mb-3">
     <div class="card-body">
         <form id="formSearch" action="~/Category/Search" method="post" onsubmit="event.preventDefault(); doSearch(1);">
@@ -52,6 +61,11 @@
         $(document).ready(function () {
             // Tự động nạp dữ liệu bảng khi vừa mở trang
             doSearch(@Model.Page);
+
+            // Tự động ẩn thông báo sau 3 giây
+            setTimeout(function () {
+                $("#msg-alert").fadeOut("slow");
+            }, 3000);
         });
     </script>
 }

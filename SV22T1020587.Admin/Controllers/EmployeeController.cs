@@ -100,18 +100,38 @@ namespace SV22T1020587.Admin.Controllers
                 data.Photo = fileName;
             }
 
-            // 4. Lưu CSDL và thông báo
-            if (data.EmployeeID == 0)
+            // 4. Lưu CSDL và bắt lỗi trùng Email
+            try
             {
-                int newId = await HRDataService.AddEmployeeAsync(data);
-                TempData["Message"] = "Đã bổ sung nhân viên mới thành công!";
-                return RedirectToAction("Edit", new { id = newId });
+                if (data.EmployeeID == 0)
+                {
+                    int newId = await HRDataService.AddEmployeeAsync(data);
+                    TempData["Message"] = "Đã bổ sung nhân viên mới thành công!";
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    await HRDataService.UpdateEmployeeAsync(data);
+                    TempData["Message"] = "Cập nhật thông tin nhân viên thành công!";
+                    return RedirectToAction("Index");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await HRDataService.UpdateEmployeeAsync(data);
-                TempData["Message"] = "Cập nhật thông tin nhân viên thành công!";
-                return RedirectToAction("Edit", new { id = data.EmployeeID });
+                // Bắt lỗi khi SQL Server ném ra Exception do trùng khóa Unique của Email
+                if (ex.GetBaseException().Message.Contains("UK_Employees_Email") || ex.GetBaseException().Message.Contains("UNIQUE KEY"))
+                {
+                    ModelState.AddModelError(nameof(data.Email), "Email này đã được sử dụng bởi nhân viên khác. Vui lòng nhập email khác!");
+                }
+                else
+                {
+                    // Các lỗi CSDL khác (nếu có)
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi hệ thống khi lưu dữ liệu. Vui lòng thử lại!");
+                }
+
+                // Trả lại View Edit kèm theo thông báo lỗi màu đỏ
+                ViewBag.Title = data.EmployeeID == 0 ? "Bổ sung Nhân viên" : "Cập nhật Nhân viên";
+                return View("Edit", data);
             }
         }
 
@@ -131,7 +151,7 @@ namespace SV22T1020587.Admin.Controllers
             bool result = await HRDataService.DeleteEmployeeAsync(id);
             if (!result)
             {
-                TempData["Error"] = "Không thể xóa nhân viên này vì có dữ liệu liên quan.";
+                TempData["Error"] = "Không thể xóa nhân viên này vì có dữ liệu liên quan (hóa đơn, chứng từ...).";
                 return RedirectToAction("Delete", new { id = id });
             }
             TempData["Message"] = "Đã xóa nhân viên thành công.";

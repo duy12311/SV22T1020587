@@ -1,11 +1,31 @@
 ﻿@{
     ViewBag.Title = "Quản lý Mặt hàng";
 }
+
 @section PageToolBar {
     <a href="~/Product/Create" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i> Bổ sung
     </a>
 }
+
+@* --- PHẦN HIỂN THỊ THÔNG BÁO --- *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert" id="success-alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert" id="error-alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="card mb-3">
     <div class="card-body">
         <form id="formSearch" action="~/Product/Search" method="post" data-target="searchResult">
@@ -78,8 +98,14 @@
 
 @section Scripts {
     <script>
-        // AJAX product search suitable for delegated pagination links.
         (function () {
+            // Tự động đóng thông báo sau 3 giây
+            setTimeout(function () {
+                $(".alert").fadeOut('slow', function() {
+                    $(this).alert('close');
+                });
+            }, 3000);
+
             function doSearch(page) {
                 var $form = $('#formSearch');
                 if ($form.length === 0) return;
@@ -92,7 +118,6 @@
                     data: data,
                     success: function (html) {
                         $('#searchResult').html(html);
-                        // ensure any JS in partial runs (if you render <script> in partial)
                     },
                     error: function (xhr, status, err) {
                         console.error('Product search failed', status, err);
@@ -102,27 +127,22 @@
             }
 
             $(function () {
-                // initial load using saved page from server (ViewBag.Page)
                 doSearch(@(ViewBag.Page ?? 1));
 
-                // submit handler
                 $('#formSearch').on('submit', function (e) {
                     e.preventDefault();
                     doSearch(1);
                 });
 
-                // delegate click events for pager links inside #searchResult
                 $('#searchResult').on('click', '.pagination .page-link', function (e) {
                     e.preventDefault();
                     var $a = $(this);
-                    // ignore disabled/active items
                     var $li = $a.closest('.page-item');
                     if ($li.hasClass('disabled') || $li.hasClass('active')) return;
 
                     var page = $a.data('page');
                     if (!page) {
                         var text = $a.text().trim();
-                        // try parse number
                         var n = parseInt(text, 10);
                         if (!isNaN(n)) page = n;
                     }

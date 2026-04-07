@@ -13,16 +13,6 @@
 
 <div class="row justify-content-center">
     <div class="col-12">
-        @* HIỂN THỊ THÔNG BÁO THÀNH CÔNG *@
-        @if (TempData["Message"] != null)
-        {
-            <div id="shipper-alert" class="alert alert-success alert-dismissible fade show shadow-sm mb-3 border-start border-success border-4">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <strong>Thành công!</strong> @TempData["Message"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        }
-
         <div class="card card-primary card-outline shadow-sm">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -61,14 +51,3 @@
         </div>
     </div>
 </div>
-
-@section scripts {
-    <script>
-        $(document).ready(function () {
-            // Tự động ẩn thông báo thành công sau 3 giây
-            setTimeout(function () {
-                $("#shipper-alert").fadeOut("slow");
-            }, 3000);
-        });
-    </script>
-}

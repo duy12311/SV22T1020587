@@ -1,4 +1,5 @@
 ﻿@model SV22T1020587.Models.Common.PaginationSearchInput
+@using Microsoft.AspNetCore.Http
 @{
     ViewBag.Title = "Quản lý Khách hàng";
 }
@@ -7,6 +8,32 @@
     <a href="~/Customer/Create" class="btn btn-primary">
         <i class="bi bi-plus-circle me-1"></i> Bổ sung
     </a>
+}
+
+@{
+    var successMessage = Context.Session.GetString("SuccessMessage");
+    if (!string.IsNullOrEmpty(successMessage))
+    {
+        // Xóa thông báo khỏi Session ngay lập tức để F5 không bị hiện lại
+        Context.Session.Remove("SuccessMessage");
+
+        <div id="successAlert" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Thành công!</strong> @successMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <script>
+            // Tự động tắt thông báo sau 3 giây
+            setTimeout(function () {
+                var alertElement = document.getElementById('successAlert');
+                if (alertElement) {
+                    var bsAlert = new bootstrap.Alert(alertElement);
+                    bsAlert.close();
+                }
+            }, 3000);
+        </script>
+    }
 }
 
 <div class="card mb-3">

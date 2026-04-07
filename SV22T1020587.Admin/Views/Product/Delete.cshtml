@@ -11,6 +11,16 @@
     </a>
 }
 
+@* --- PHẦN HIỂN THỊ THÔNG BÁO LỖI --- *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="row justify-content-center">
     <div class="col-12">
         <div class="card card-danger card-outline">
@@ -36,13 +46,13 @@
                                 <dd class="col-sm-8">@Model.ProductName</dd>
 
                                 <dt class="col-sm-4">Mô tả</dt>
-                                <dd class="col-sm-8">@Model.ProductDescription</dd>
+                                <dd class="col-sm-8 text-muted">@Model.ProductDescription</dd>
 
                                 <dt class="col-sm-4">Đơn vị tính</dt>
                                 <dd class="col-sm-8">@Model.Unit</dd>
 
                                 <dt class="col-sm-4">Giá bán</dt>
-                                <dd class="col-sm-8">@Model.Price.ToString("N0")</dd>
+                                <dd class="col-sm-8">@Model.Price.ToString("N0") <small class="text-secondary">VNĐ</small></dd>
 
                                 <dt class="col-sm-4">Trạng thái</dt>
                                 <dd class="col-sm-8">
@@ -60,7 +70,7 @@
 
                         <div class="col-md-4 text-end">
                             <img src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
-                                 class="img-fluid img-thumbnail" alt="Ảnh mặt hàng" style="max-height: 220px;" />
+                                 class="img-fluid img-thumbnail shadow-sm" alt="Ảnh mặt hàng" style="max-height: 220px;" />
                         </div>
                     </div>
                 </form>
@@ -68,3 +78,14 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Tự động ẩn thông báo lỗi sau 5 giây (trang xóa thường cần thời gian đọc lỗi kỹ hơn)
+            setTimeout(function () {
+                $(".alert-danger").fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}
